@@ -1,0 +1,41 @@
+{
+  "name": "myblog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "vuepress dev docs",
+    "build": "vuepress build docs",
+    "deploy": "bash deploy.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "moment": "^2.29.1",
+    "vuepress": "1.8.2",
+    "vuepress-plugin-code-copy": "^1.0.6",
+    "vuepress-plugin-reading-progress": "^1.0.10",
+    "vuepress-theme-reco": "^1.6.11"
+  },
+  "description": "a blog build on vuepress",
+  "dependencies": {
+    "@vuepress-reco/vuepress-plugin-bgm-player": "^1.1.4",
+    "@vuepress-reco/vuepress-plugin-bulletin-popover": "^1.6.0",
+    "@vuepress-reco/vuepress-plugin-kan-ban-niang": "^1.0.5",
+    "@vuepress-yard/vuepress-plugin-window": "^1.0.10",
+    "vue-canvas-effect": "0.0.12",
+    "vuepress-plugin-cursor-effects": "^1.0.2",
+    "vuepress-plugin-meting": "^0.2.3"
+  },
+  "bugs": {
+    "url": "https://github.com/Hmilyxj/vuepressBlog/issues"
+  },
+  "homepage": "https://github.com/Hmilyxj/vuepressBlog#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Hmilyxj/vuepressBlog.git"
+  }
+}

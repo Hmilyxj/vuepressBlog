@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // function debunce(fn, delay) {
+    //   let flag = null;
+    //   return function () {
+    //     if(flag) clearTimeout(flag);
+    //     flag = setTimeout(() => {
+    //       fn.apply(this, arguments);
+    //     }, delay)
+    //   }
+    // }
+
+    // function throttle(fn, delay) {
+    //   let flag = true;
+    //   return function () {
+    //     if(!flag) return false;
+    //     flag = false;
+    //     setTimeout(() => {
+    //       flag = true;
+    //       fn.apply(this, arguments);
+    //     }, delay)
+    //   }
+    // }
+
+    // function map(arr, mapCallback) {
+    //   if (!Array.isArray(arr) || !arr.length || typeof mapCallback !== 'function') {
+    //     return [];
+    //   } else {
+    //     let res = [];
+    //     for (let i = 0; i < arr.length; i++) {
+    //       res.push(mapCallback(arr[i], i, arr));
+    //     }
+    //   }
+    //   return res;
+    // }
+
+    // function filter(arr, filterCallback) {
+    //   if (!Array.isArray(arr) || !arr.length || typeof filterCallback !== 'function') {
+    //     return [];
+    //   } else {
+    //     let res = [];
+    //     for (let i = 0; i < arr.length; i++) {
+    //       if (filterCallback(arr[i], i, arr)) {
+    //         res.push(arr[i])
+    //       }
+    //     }
+    //   }
+    //   return res;
+    // }
+
+    // function reduce(arr, reduceCallback, initialValue) {
+    //   if (!Array.isArray(arr) || !arr.length || typeof reduceCallback !== 'function') {
+    //     return [];
+    //   } else {
+    //     let value = initialValue === undefined ? arr[0] : initialValue;
+    //     for (let i = initialValue === undefined ? 1 : 0; i < arr.length; i++) {
+    //       value = reduceCallback(arr[i], i, arr, value);
+    //     }
+    //   }
+    //   return value;
+    // }
+
+    /**
+ * 用数组的reduce方法实现数组的map
+ */
+    Array.prototype._map = function (fn, thisArg) {
+      const result = [];
+      this.reduce((prev, curr, index, array) => {
+        result[index] = fn.call(thisArg, array[index], index, array);
+      }, 0)
+      return result;
+    }
+
+    // function dfs(root) {
+    //   let res = [];
+    //   if (!root) {
+    //     return res;
+    //   } else {
+    //     let stack = [root];
+    //     while (stack.length) {
+    //       res.push(stack.pop());
+    //       let children = root.children;
+    //       for (let i = children.length - 1; i >= 0; i--) {
+    //         stack.push(children[i]);
+    //       }
+    //     }
+    //   }
+    //   return res;
+    // }
+
+    function dfs(root, res) {
+      if (root) {
+        res.push(root);
+        let children = root.children;
+        for (let i = 0; i < children.length; i++) {
+          dfs(children[i], res);
+        }
+      }
+      return res;
+    }
+
+    // function bfs(root) {
+    //   let res = [];
+    //   if (!root) {
+    //     return res;
+    //   } else {
+    //     let queue = [root];
+    //     while (queue.length) {
+    //       res.push(queue.shift());
+    //       let children = root.children;
+    //       for (let i = 0; i < children.length; i++) {
+    //         queue.push(children[i]);
+    //       }
+    //     }
+    //   }
+    //   return res;
+    // }
+    function bfs(root) {
+      let res = [];
+      let i = 0;
+      if (root) {
+        res.push(root);
+        dfs(root.nextElementSibling);
+        root = res[i++];
+        dfs(root.firstElementSibing);
+      }
+      return res;
+    }
+    // function next(p) {
+    //   let next = new Array(p.length);
+    //   next[0] = -1;
+    //   let k = -1, j = 0;
+    //   while (j < p.length - 1) {
+    //     if (k === -1 || p[j] === p[k]) {
+    //       if (p[++j] === p[++k]) {
+    //         next[j] = next[k];
+    //       } else {
+    //         next[j] = k;
+    //       }
+    //     } else {
+    //       k = next[k];
+    //     }
+    //   }
+    //   return next;
+    // }
+
+    // function kmp(s, p, next) {
+    //   let i = 0, j = 0;
+    //   while(i < s.length && j < p.length){
+    //     if(j === -1 || s[i] === p[j]){
+    //       i++; j++;
+    //     } else {
+    //       j = next[j];
+    //     }
+    //   }
+    //   if(j === p.length){
+    //     return i - j;
+    //   } else {
+    //     return -1;
+    //   }
+    // }
+
+    // class Promise {
+    //   constructor(fn) {
+    //     this.status = 'pending';
+    //     this.resolve = 'undefined';
+    //     this.reject = 'undefined';
+
+    //     let resolve = value => {
+    //       if (this.status === 'pending') {
+    //         this.status = 'resolved';
+    //         this.resolve = value;
+    //       }
+    //     }
+    //     let reject = value => {
+    //       if(this.status === 'pending'){
+    //         this.status = 'rejected';
+    //         this.reject = value;
+    //       }
+    //     }
+    //     try{
+    //       fn(resolve, reject);
+    //     } catch(e){
+    //       reject(e)
+    //     }
+
+    //     function then(onResolved, onRejected){
+    //       this.status === 'resolved' ? onResolved(this.resolve) : onRejected(this.reject);
+    //     }
+    //   }
+    // }
+
+    // function promiseAll(promises) {
+    //   if (!Array.isArray(promises)) {
+    //     throw new Error('promises must be an array');
+    //   }
+    //   return new Promise(function (resolve, reject) {
+    //     let promiseLength = promises.length;
+    //     let values = new Array(promiseLength);
+    //     let num = 0;
+    //     for (let i = 0; i < promiseLength; i++) {
+    //       Promise.resolve(promises[i].then(function (value) {
+    //         values[i] = value;
+    //         num++;
+    //         if (num === promiseLength) {
+    //           return resolve(values);
+    //         }
+    //       }, function (reson) {
+    //         return reject(reson);
+    //       }))
+    //     }
+    //   })
+    // }
+
+    // function promiseRace(promises) {
+    //   if (!Array.isArray(promises)) {
+    //     throw new Error('promises must be an array');
+    //   }
+    //   return new Promise(function (resolve, reject) {
+    //     promises.forEach(p => {
+    //       Promise.resolve(p).then(value => {
+    //         resolve(value);
+    //       }, err => {
+    //         reject(err);
+    //       })
+    //     })
+    //   })
+    // }
+
+    function promiseAny(promises) {
+      if (!Array.isArray(promises)) {
+        throw new Error('promises must be an array');
+      }
+      let i = 0, j = 0;
+      return new Promise(function (resolve, reject) {
+        promises.forEach(p => {
+          Promise.resolve(p).then(value => {
+            if (j < 1) {
+              resolve(value)
+            }
+            i++; j++;
+          }), err => {
+            if (i >= promises.length - 1) {
+              reject('error')
+            }
+            i++;
+          }
+        })
+      })
+    }
+
+    // function limitedRequest(urls, maxNum) {
+    //   let pool = [];
+    //   for (let i = 0; i < Math.min(urls.length, maxNum); i++) {
+    //     pool.push(run(urls.shift()));
+    //   }
+
+    //   function run(url) {
+    //     return start(url).then(() => {
+    //       console.log('当前并发数:', pool.length);
+    //       if (urls.length === 0) {
+    //         console.log('并发请求已全部发起');
+    //         return Promise.resolve();
+    //       }
+    //       return run(urls.shift());
+    //     })
+    //   }
+
+    //   Promise.all(pool).then(() => {
+    //     console.log('请求已全部结束');
+    //   })
+    // }
+
+    // function start(url) {
+    //   return new Promise(function (resolve) {
+    //     setTimeout(() => {
+    //       resolve(url);
+    //     }, 1000);
+    //   })
+    // }
+    // limitedRequest([1, 2, 3, 4, 5], 3)
+
+    // function EventBusClass() {
+    //   this.msgQueues = {};
+    // }
+    // EventBusClass.prototype = {
+    //   on: function (msgName, func) {
+    //     if (this.msgQueues.hasOwnProperty(msgName)) {
+    //       if (typeof this.msgQueues[msgName] === 'function') {
+    //         this.msgQueues[msgName] = [this.msgQueues[msgName], func];
+    //       } else {
+    //         this.msgQueues[msgName] = [...this.msgQueues[msgName], func];
+    //       }
+    //     } else {
+    //       this.msgQueues[msgName] = func;
+    //     }
+    //   },
+    //   once: function (msgName, func) {
+    //     this.msgQueues[msgName] = func;
+    //   },
+    //   emit: function (msgName, msg) {
+    //     if (!this.msgQueues.hasOwnProperty(msgName)) {
+    //       return;
+    //     } else {
+    //       if (typeof this.msgQueues[msgName] === 'function') {
+    //         this.msgQueues[msgName](msg);
+    //       } else {
+    //         this.msgQueues[msgName].map(fn => {
+    //           fn(msg);
+    //         })
+    //       }
+    //     }
+    //   },
+    //   off: function (msgName) {
+    //     if (!this.msgQueues.hasOwnProperty(msgName)) {
+    //       return;
+    //     } else {
+    //       delete this.msgQueues[msgName];
+    //     }
+    //   }
+    // }
+
+    // const EventBus = new EventBusClass();
+    // window.EventBus = EventBus;
+
+    // function findkthmin(arr, k) {
+    //   let res = arr.slice(0, k);
+    //   maxHeap(res);
+    //   for (let i = k; i < arr.length; i++) {
+    //     if (arr[i] < res[0]) {
+    //       res[0] = arr[i];
+    //       createHeap(res, 0);
+    //     }
+    //   }
+    //   return res;//前k个小的数，res[0]为第k小数
+    // }
+
+    // function maxHeap(arr) {
+    //   let start = Math.floor(arr.length / 2 - 1);
+    //   for (let i = start; i >= 0; i--) {
+    //     createHeap(arr, i);
+    //   }
+    // }
+
+    // function createHeap(arr, index) {
+    //   let left = index * 2 + 1, right = index * 2 + 2, max = index;
+    //   if (left < arr.length && arr[left] > arr[max]) {
+    //     max = left;
+    //   }
+    //   if (right < arr.length && arr[right] > arr[max]) {
+    //     max = right;
+    //   }
+    //   if (max !== index) {
+    //     let tmp = arr[max];
+    //     arr[max] = arr[index];
+    //     arr[index] = tmp;
+    //     createHeap(arr, max)
+    //   }
+    // }
+    // console.log(findkthmin([4, 3, 5, 6, 2, 7, 1, 8, 9], 5))
+
+    // function myNew(cto, ...args) {
+    //   let obj = {};
+    //   obj._proto_ = Object.create(cto.prototype);
+    //   return cto.apply(obj, args);
+    // }
+
+    // function myCall(obj) {
+    //   let _obj = obj ? Object(obj) : window;
+    //   _obj.fn = this;
+    //   let args = [...arguments].slice(1);
+    //   _obj.fn(...args);
+    //   delete _obj.fn;
+    // }
+
+    // function myApply(obj, arr) {
+    //   let _obj = obj ? Object(obj) : window;
+    //   _obj.fn = this;
+    //   let args = [];
+    //   if(!arr || arr.length === 0){
+    //     _obj.fn();
+    //   } else {
+    //     for(let i = 0; i < arr.length; i++){
+    //       args.push('arr[' + i + ']');
+    //     }
+    //   }
+    //   _obj.fn(...args);
+    //   delete _obj.fn;
+    // }
+
+    // function myBind(obj) {
+    //   if (typeof (this) !== 'function') {
+    //     throw Error('调用Mybind方法必须为函数');
+    //   }
+    //   let _fn = this;
+    //   let args = [...arguments].slice(1);
+    //   // 创建一个待会儿返回出去的函数，这个函数会赋到外部变量中
+    //   function bindFunc() {
+    //     let newArgs = [...arguments].slice();
+    //     let _obj = this.constructor === _fn ? this : obj;
+    //     // 通过apply去改变this指向,实现函数柯里化
+    //     _fn.apply(_obj, newArgs.concat(args))
+    //   }
+    //   // 创建一个中介函数，以便实现原型继承
+    //   var ProtoFn = function () { };
+    //   ProtoFn.prototype = _fn.prototype;
+    //   bindFunc.prototype = new ProtoFn();
+    //   return bindFunc;
+    // }
+
+    // const arr = [1, 2, [3, 4, 5, [6, 7], 8], 9, 10, [11, [12, 13]]];
+
+    // arr.flat(Infinity);
+
+    // function flatten(arr) {
+    //   while (arr.some(item => { Array.isArray(item) })) {
+    //     arr = [].concat(...arr)
+    //   }
+    //   return arr;
+    // }
+
+    // function flatten(arr) {
+    //   let res = [];
+    //   arr.forEach((item, index, arr) => {
+    //     if (Array.isArray(item)) {
+    //       res = res.concat(flatten(item))
+    //     } else {
+    //       res = res.push(item)
+    //     }
+    //   });
+    //   return res;
+    // }
+
+    // function flatten(arr) {
+    //   arr.reduce((acc, cur) => {
+    //     Array.isArray(cur) ? [...acc, ...flatten(cur)] : [...acc, cur]
+    //   }, [])
+    // }
+
+    // function flatten(arr) {
+    //   arr.toString().split(',').map(item => +item);
+    // }
+
+    // function shallowCopy(obj) {
+    //   let cloneObj = {};
+    //   for (var i in obj) {
+    //     if (obj.hasOwnProperty(i)) {
+    //       cloneObj[i] = obj[i];
+    //     }
+    //   }
+    //   return cloneObj;
+    // }
+
+    // function deepClone(obj) {
+    //   let cloneObj = new obj.constructor();
+    //   if (obj === null) return obj;
+    //   if (typeof obj !== 'object') return obj;
+    //   if (obj instanceof Date) return new Date(obj);
+    //   if (obj instanceof RegExp) return new RegExp(obj);
+    //   for (var i in obj) {
+    //     if (obj.hasOwnProperty(i)) {
+    //       cloneObj[i] = deepClone(obj[i]);
+    //     }
+    //   }
+    //   return cloneObj;
+    // }
+
+    // function findRepeatNumber(nums) {
+    //   let i = 0;
+    //   while (i < nums.length) {
+    //     if (nums[i] === i) {
+    //       i++;
+    //       continue;
+    //     }
+
+    //     if (nums[nums[i]] === nums[i]) {
+    //       return nums[i];
+    //     }
+
+    //     let tmp = nums[i];
+    //     nums[i] = nums[tmp];
+    //     nums[tmp] = tmp;
+    //   }
+    // }
+
+    // function findNumberIn2DArray(matrix, target) {
+    //   let i = matrix.length - 1, j = 0;
+    //   while (i >= 0 && j < matrix[0].length) {
+    //     if (matrix[i][j] < target) {
+    //       j++;
+    //     } else if (matrix[i][j] > target) {
+    //       i--;
+    //     } else {
+    //       return true
+    //     }
+    //   }
+    //   return false;
+    // }
+
+    // function replaceSpace(s) {
+    //   let res = [];
+    //   for (let i = 0; i < s.length; i++) {
+    //     if (s.charAt(i) === ' ') {
+    //       res.push("%20");
+    //     } else {
+    //       res.push(s.charAt(i));
+    //     }
+    //   }
+    //   return res.join('');
+    // }
+
+    // function reversePrint(head) {
+    //   let stack = [];
+    //   while (head) {
+    //     stack.push(head.val);
+    //     head = head.next;
+    //   }
+    //   let res = [];
+    //   while (stack.length) {
+    //     res.push(stack.pop())
+    //   }
+    //   return res;
+    // }
+
+    // function buildTree(preorder, inorder) {
+    //   let map = new Map();
+    //   for (let i = 0; i < inorder.length; i++) {
+    //     map.set(inorder[i], i);
+    //   }
+    //   return recur(preorder, map, 0, 0, inorder.length - 1);
+    // }
+
+    // function recur(preorder, map, root, left, right) {
+    //   if (left > right) return null;
+    //   let i = map.get(preorder[0]);
+    //   let node = new TreeNode(preorder[root]);
+    //   node.left = recur(preorder, map, root + 1, left, i - 1);
+    //   node.right = recur(preorder, map, i - left + root + 1, i + 1, right);
+    //   return node;
+    // }
+
+    // var CQueue = function () {
+    //   this.stackA = [];
+    //   this.stackB = [];
+    // };
+
+    // /**
+    //  * @param {number} value
+    //  * @return {void}
+    //  */
+    // CQueue.prototype.appendTail = function (value) {
+    //   this.stackA.push(value);
+    // };
+
+    // /**
+    //  * @return {number}
+    //  */
+    // CQueue.prototype.deleteHead = function () {
+    //   if (this.stackB.length) {
+    //     return this.stackB.pop();
+    //   }
+    //   if (!this.stackA.length) {
+    //     return -1;
+    //   }
+    //   while (this.stackA.length) {
+    //     this.stackB.push(this.stackA.pop());
+    //   }
+    //   return this.stackB.pop();
+    // };
+
+    // function fib(n) {
+    //   let a = 0, b = 1, sum = 0;
+    //   for (let i = 0; i < n; i++) {
+    //     sum = a + b;
+    //     a = b;
+    //     b = sum;
+    //   }
+    //   return a;
+    // }
+
+    // function numWays(n) {
+    //   let a = 1, b = 1, sum = 0;
+    //   for (let i = 0; i < n; i++) {
+    //     sum = a + b;
+    //     a = b;
+    //     b = sum;
+    //   }
+    //   return a;
+    // }
+
+    // function minArray(numbers) {
+    //   for (let i = numbers.length - 1; i > 0; i--) {
+    //     if (numbers[i - 1] > numbers[i]) {
+    //       return numbers[i]
+    //     }
+    //   }
+    // }
+
+    // function exist(board, word) {
+    //   let words = word.split('');
+    //   for (let i = 0; i < board.length; i++) {
+    //     for (let j = 0; j < board[0].length; j++) {
+    //       if (dfs(board, words, i, j, 0)) {
+    //         return true;
+    //       }
+    //     }
+    //   }
+    //   return flase;
+    // }
+
+    // function dfs(board, words, i, j, k) {
+    //   if (i < 0 || i >= board.length || j < 0 || j >= board[0].length || board[i][j] !== words[k]) {
+    //     return false;
+    //   }
+    //   if (k === words.length - 1) {
+    //     return true;
+    //   }
+    //   board[i][j] = '\0';
+    //   let res = dfs(board, words, i + 1, j, k + 1) || dfs(board, words, i - 1, j, k + 1) || dfs(board, words, i, j + 1, k + 1) || dfs(board, words, i, j - 1, k + 1);
+    //   board[i][j] = words[k];
+    //   return res;
+    // }
+
+    // function movingCount(m, n, k) {
+    //   const visited = new Array(m).fill(0).map(() => new Array(n).fill(false));
+    //   return dfs(0, 0, 0, 0, m, n, k, visited);
+    // }
+
+    // function dfs(i, j, si, sj, m, n, k, visited) {
+    //   if (si + sj > k || i >= m || j >= n || visited[i][j]) {
+    //     return 0;
+    //   } else {
+    //     visited[i][j] = true;
+    //     return 1 + dfs(i + 1, j, (i + 1) % 10 !== 0 ? si + 1 : si - 8, sj, m, n, k, visited) + dfs(i, j + 1, si, (j + 1) % 10 !== 0 ? sj + 1 : sj - 8, m, n, k, visited)
+    //   }
+    // }
+
+    // function cuttingRope(n) {
+    //   if (n <= 3) return n - 1;
+    //   let a = Math.floor(n / 3), b = n % 3;
+    //   if (b === 0) return parseInt(Math.pow(3, a));
+    //   if (b === 1) return parseInt(Math.pow(3, a - 1) * 4);
+    //   return parseInt(Math.pow(3, a) * 2)
+    // }
+
+    // function hammingWeight(n) {
+    //   let ans = 0;
+    //   while (n) {
+    //     ans += n & 1;
+    //     n >>>= 1;
+
+    //   }
+    //   return ans;
+    // }
+
+    // function myPow(x, n) {
+    //   let b = n, res = 1.0;
+    //   if (b < 0) {
+    //     b = -b;
+    //     x = 1 / x;
+    //   }
+
+    //   while (b > 0) {
+    //     if (b % 2 === 1) res *= x;
+    //     x *= x;
+    //     b = Math.floor(b / 2.0);
+    //   }
+    //   return res;
+    // }
+
+    // function printNumbers(n) {
+    //   let end = parseInt(Math.pow(10, n));
+    //   let res = new Array(end);
+    //   for (let i = 1; i < end; i++) {
+    //     res[i] = i;
+    //   }
+    //   return res;
+    // }
+
+    // function deleteNode(head, val) {
+    //   if (head.val === val) return head.next;
+    //   let pre = head, cur = head.next;
+    //   while (cur.val !== val && cur) {
+    //     pre = pre.next;
+    //     cur = cur.next;
+    //   }
+    //   if (cur !== null) pre.next = pre.next.next;
+    //   return head;
+    // }
+
+    // function isNumber(s) {
+    //   return /^[+-]?(((\d+\.(\d+)?)|(\.\d+))|\d+)(([eE][+-]?\d+)?)$/.test(s.trim())
+    // }
+
+    // function exchange(nums) {
+    //   let i = 0, j = nums.length - 1;
+    //   while (i < j) {
+    //     while (i < j && nums[i] % 2 === 1) i++;
+    //     while (i < j && nums[j] % 2 === 0) j--;
+    //     let tmp = nums[i];
+    //     nums[i] = nums[j];
+    //     nums[j] = tmp;
+    //   }
+    //   return nums;
+    // }
+
+    // function getKthFromEnd(head, k) {
+    //   let first = head, second = head;
+    //   for (let i = 0; i < k; i++) {
+    //     first = first.next;
+    //   }
+    //   while (first) {
+    //     first = first.next;
+    //     second = second.next;
+    //   }
+    //   return second;
+    // }
+
+    // function reverseList(head) {
+    //   let pre = null, cur = head;
+    //   while (cur) {
+    //     let tmp = cur.next;
+    //     cur.next = pre;
+    //     pre = cur;
+    //     cur = tmp;
+    //   }
+    //   return pre;
+    // }
+
+    // function mergeTwoLists(l1, l2) {
+    //   let dum = new ListNode(0);
+    //   let cur = dum;
+    //   while (l1 || l2) {
+    //     if (l1.val < l2.val) {
+    //       cur.next = l1;
+    //       l1 = l1.next;
+    //     } else {
+    //       cur.next = l2;
+    //       l2 = l2.next;
+    //     }
+    //     cur = cur.next;
+    //   }
+    //   cur.next = l1 ? l1 : l2;
+    //   return dum.next;
+    // }
+
+    // function isSubStructure(A, B) {
+    //   if (A === null || B === null) {
+    //     return false;
+    //   }
+    //   return isSubStructure(A.left, B) || isSubStructure(A.right, B) || recur(A, B);
+    // }
+
+    // function recur(A, B) {
+    //   if (B === null) return true;
+    //   if (A === null || A.val !== B.val) return false;
+    //   return recur(A.left, B.left) && recur(A.right, B.right);
+    // }
+
+    // function mirrorTree(root) {
+    //   if (root === null) return root;
+    //   let node = root.left;
+    //   root.left = mirrorTree(root.right);
+    //   root.right = mirrorTree(node);
+    //   return root;
+    // }
+
+    // function isSymmetric(root) {
+    //   if (root === null) return true;
+    //   return recur(root.left, root.right);
+    // }
+
+    // function recur(left, right) {
+    //   if (left === null && right === null) {
+    //     return true;
+    //   }
+    //   if (left === null || right === null || left.val !== right.val) {
+    //     return false;
+    //   }
+    //   return recur(left.left, right.right) && recur(left.right, right.left);
+    // }
+
+    // function spiralOrder(matrix) {
+    //   let ans = [];
+    //   if (!matrix.length) return ans;
+    //   let top = 0, bottom = matrix.length - 1, left = 0, right = matrix[0].length - 1;
+    //   while (left <= right && top <= bottom) {
+    //     for (let i = left; i <= right; i++) {
+    //       ans.push(matrix[top][i]);
+    //     }
+    //     for (let i = top + 1; i <= bottom; i++) {
+    //       ans.push(matrix[i][right]);
+    //     }
+    //     if (left < right && top < bottom) {
+    //       for (let i = right - 1; i >= left; i--) {
+    //         ans.push(matrix[bottom][i]);
+    //       }
+    //       for (let i = bottom - 1; i > top; i--) {
+    //         ans.push(matrix[i][left]);
+    //       }
+    //     }
+    //     top++;
+    //     left++;
+    //     right--;
+    //     bottom--;
+    //   }
+    //   return ans;
+    // }
+
+    // function MinStack(params) {
+    //   this.stack = [];
+    //   this.minStack = [Infinity];
+    // }
+
+    // MinStack.prototype.push = function (x) {
+    //   this.stack.push(x);
+    //   this.minStack.push(Math.min(this.minStack[this.minStack.length - 1], x));
+    // }
+
+    // MinStack.prototype.pop = function () {
+    //   this.stack.pop();
+    //   this.minStack.pop();
+    // };
+
+    // MinStack.prototype.top = function () {
+    //   return this.stack[this.stack.length - 1];
+    // }
+
+    // MinStack.prototype.min = function () {
+    //   return this.minStack[this.minStack.length - 1];
+    // };
+
+    function validateStackSequences(pushed, popped) {
+      const stack = [];
+      let index = 0;
+      for (let item of pushed) {
+        stack.push(item);
+        while (stack.length && stack[stack.length - 1] === popped[index]) {
+          stack.pop();
+          index++;
+        }
+      }
+      return stack.length === 0;
+    }
+
+    function levelOrder(root) {
+      let ans = [];
+      if (root === null) return ans;
+      let queue = [root];
+
+      while (queue.length) {
+        let res = [];
+        for (let i = queue.length; i > 0; i--) {
+          let node = queue.shift();
+          res.push(node.val);
+          if (node.left) queue.push(node.left);
+          if (node.right) queue.push(node.right);
+        }
+        ans.push(res);
+      }
+      return res;
+    }
+
+    // function levelOrder(root) {
+    //   let ans = [];
+    //   if (root === null) return ans;
+    //   let queue = [root];
+
+    //   while (queue.length) {
+    //     let res = [];
+    //     for (let i = queue.length; i > 0; i--) {
+    //       let node = queue.shift();
+    //       res.push(node.val);
+    //       if (node.left) queue.push(node.left);
+    //       if (node.right) queue.push(node.right);
+    //     }
+    //     if ((ans.length % 2 == 1)) reverse(res);
+    //     ans.push(res);
+    //   }
+    //   return res;
+    // }
+
+    // function reverse(res) {
+    //   let i = 0; j = res.length - 1;
+    //   while (i <= j) {
+    //     swap(res, i, j);
+    //     i++;
+    //     j--;
+    //   }
+    // }
+
+    function verifyPostorder(postorder) {
+      return recur(postorder, 0, postorder.length - 1);
+    }
+
+    function recur(postorder, i, j) {
+      if (i >= j) {
+        return true;
+      }
+      let p = i;
+      while (postorder[p] < postorder[j]) p++;
+      let m = p;
+      while (postorder[p] > postorder[j]) p++;
+      return p === j && recur(postorder, i, m - 1) && recur(postorder, m, j - 1);
+    }
+
+    function pathSum(root, target) {
+      let ans = [], res = [];
+      recur(ans, res, root, target);
+      return ans;
+    }
+
+    function recur(ans, res, root, target) {
+      if (root === null) return;
+      res.push(root.val);
+      target -= root.val;
+
+      if (target === 0 && root.left === null && root.right === null) {
+        ans.push(Array.from(res));
+      }
+
+      recur(ans, res, root.left, target);
+      recur(ans, res, root.right, target);
+      res.splice(res.length - 1, 1);
+    }
+
+    // function copyRandomList(head) {
+    //   if (head === null) return head;
+    //   let cur = head;
+    //   while (cur) {
+    //     let tmp = new ListNode(cur.val);
+    //     tmp.next = cur.next;
+    //     cur.next = tmp;
+    //     cur = tmp.next;
+    //   }
+
+    //   cur = head;
+    //   while (cur) {
+    //     if (cur.random) {
+    //       cur.next.random = cur.random.next;
+    //       cur = cur.next.next;
+    //     }
+    //   }
+
+    //   let pre = head, res = head.next;
+    //   cur = head.next;
+    //   while (cur.next) {
+    //     pre.next = pre.next.next;
+    //     cur.next = cur.next.next;
+    //     pre = pre.next;
+    //     cur = cur.next;
+    //   }
+    //   pre.next = null;
+    //   return res;
+    // }
+
+    function treeToDoublyList(root) {
+      if (root === null) return null;
+      let pre, head;
+      recur(root);
+      function recur(root) {
+        if (root === null) return;
+        recur(root.left);
+        if (pre !== null) {
+          pre.right = root;
+        } else {
+          head = root;
+        }
+        root.left = pre;
+        pre = root;
+        recur(root.right)
+      }
+      pre.right = head;
+      head.left = pre;
+      return head;
+    }
+
+    // function serialize(root) {
+    //   let res = [];
+    //   let queue = [root];
+    //   while (queue.length) {
+    //     let node = queue.shift();
+    //     if (node) {
+    //       res.push(node.val);
+    //       queue.push(node.left);
+    //       queue.push(node.right);
+    //     } else {
+    //       res.push('#')
+    //     }
+    //   }
+    //   return res.join(',')
+    // }
+
+    function deserialize(data) {
+      if (data === "#") return null;
+      let vals = data.split(',');
+      let root = new TreeNode(vals[0]);
+      let queue = [root];
+      let i = 1;
+      while (queue.length) {
+        let node = queue.shift();
+        if (vals[i] !== '#') {
+          node.left = new TreeNode(vals[i]);
+          queue.push(node.left);
+        }
+        i++;
+        if (vals[i] !== '#') {
+          node.right = new TreeNode(vals[i]);
+          queue.push(node.right);
+        }
+        i++;
+      }
+      return root;
+    }
+
+    function permutation(s) {
+      let c = s.split('');
+      let res = [];
+      dfs(c, res, 0);
+      return res;
+    }
+
+    function dfs(c, res, index) {
+      if (index === c.length - 1) {
+        res.push(c.join(''));
+        return;
+      }
+      let dic = [];
+      for (let i = index; i < c.length; i++) {
+        if (dic.includes(c[i])) continue;
+        dic.push(c[i]);
+        swap(c, i, index);
+        dfs(c, res, index + 1);
+        swap(c, i, index);
+      }
+    }
+
+    function swap(nums, a, b) {
+      let tmp = nums[a];
+      nums[a] = nums[b];
+      nums[b] = tmp;
+    }
+
+    function majorityElement(nums) {
+      let count = 0, record = null;
+      for (let i = 0; i < nums.length; i++) {
+        if (count === 0) record = nums[i];
+        count += record === nums[i] ? 1 : -1;
+      }
+      return record;
+    }
+
+    function getLeastNumbers(arr, k) {
+      quickSort(arr, k, 0, arr.length - 1);
+      return arr.slice(0, k);
+    }
+
+    function quickSort(arr, k, l, r) {
+      if (l >= r) return;
+      let i = l, j = r;
+      while (i < j) {
+        while (i < j && arr[i] <= arr[l]) i++;
+        while (i < j && arr[j] >= arr[l]) j--;
+        swap(arr, i, j);
+      }
+      swap(arr, i, l);
+      if (k < i) quickSort(arr, k, l, i - 1);
+      if (k > i) quickSort(arr, k, i + 1, r);
+    }
+
+    function MedianFinder() {
+      class Heap {
+        constructor() { }
+      }
+      this.A = new Heap();//小顶堆，保留大部分
+      this.B = new Heap((x, y) => x < y)
+    }
+    MedianFinder.prototype.addNum = function (num) {
+      if (this.A.size() !== this.B.size()) {
+        this.A.add(num);
+        this.B.add(this.A.pop());
+      } else {
+        this.B.add(num);
+        this.A.add(this.B.pop())
+      }
+    }
+    MedianFinder.prototype.findMedian = function () {
+      return this.A.size() !== this.B.size() ? this.A.peek() : (this.A.peek() + this.B.peek()) / 2;
+    }
+
+    function maxSubArray(nums) {
+      let res = nums[0];
+      for (let i = 1; i < nums.length; i++) {
+        nums[i] += Math.max(0, nums[i - 1]);
+        res = Math.max(res, nums[i]);
+      }
+      return res;
+    }
+
+    function countDigitOne(n) {
+      let digit = 1, res = 0;
+      let high = Math.floor(n / 10), cur = n % 10, low = 0;
+      while (high !== 0 || cur !== 0) {
+        if (cur === 0) {
+          res += high * digit;
+        } else if (cur === 1) {
+          res += high * digit + low + 1;
+        } else {
+          res += (high + 1) * digit;
+        }
+        low += cur * digit;
+        cur = high % 10;
+        high = Math.floor(high / 10);
+        digit *= 10;
+      }
+      return res;
+    }
+
+    function findNthDigit(num) {
+      let digit = 1, start = 1, count = 9;
+      while (n > count) {
+        n -= count;
+        start *= 10;
+        digit += 1;
+        count = start * digit * 9;
+      }
+      let num = start + (n - 1) / digit;
+      return num.toString().charAt((n - 1) % digit);
+    }
+
+    function minNumber(nums) {
+      let str = new Array(nums.length);
+      for (let i = 0; i < nums.length; i++) {
+        str[i] = nums[i].toString();
+      }
+      str.sort((a, b) => `${a}${b}` - `${b}${a}`);
+      return str.join('');
+    }
+
+    function translateNum(num) {
+      let a = 1, b = 1, x, y = num % 10;
+      while (num > 9) {
+        num = Math.floor(num / 10);
+        x = num % 10;
+        let c = x * 10 + y >= 10 && x * 10 + y <= 25 ? a + b : b;
+        a = b;
+        b = c;
+        y = x;
+      }
+      return b;
+    }
+
+    // function maxValue(grid) {
+    //   for (let i = 1; i < grid.length; i++) {
+    //     grid[i][0] += grid[i - 1][0];
+    //   }
+    //   for (let i = 1; i < grid[0].length; i++) {
+    //     grid[0][i] += grid[0][i - 1];
+    //   }
+
+    //   for (let i = 1; i < grid.length; i++) {
+    //     for (let j = 1; j < grid[0].length; j++) {
+    //       grid[i][j] += Math.max(grid[i - 1][j], grid[i][j - 1]);
+    //     }
+    //   }
+    //   return grid[grid.length - 1][grid[0].length - 1];
+    // }
+
+    function lengthOfLongestSubstring(s) {
+      let ans = 0, i = -1;
+      let map = new Map();
+      for (let j = 0; j < s.length; j++) {
+        if (map.has(s.charAt(j))) {
+          i = Math.max(i, map.get(s.charAt(j)));
+        }
+        map.set(s.charAt(j), j);
+        ans = Math.max(ans, j - i);
+      }
+      return ans;
+    }
+
+    function nthUglyNumber(n) {
+      let nums = new Array(n);
+      nums[0] = 1;
+      let a = 0, b = 0, c = 0;
+      for (let i = 1; i < n; i++) {
+        let na = 2 * nums[a], nb = 3 * nums[b], nc = 5 * nums[c];
+        nums[i] = Math.min(na, Math.min(nb, nc));
+        if (nums[i] === na) a++;
+        if (nums[i] === nb) b++;
+        if (nums[i] === nc) c++;
+      }
+      return nums[n - 1];
+    }
+
+    function firstUniqChar(s) {
+      const map = new Map();
+      for (let ch of Array.from(s)) {
+        if (map.has(ch)) {
+          map.set(ch, map.get(ch) + 1);
+        } else {
+          map.set(ch, 1);
+        }
+      }
+      for (let ch of Array.from(s)) {
+        if (map.get(ch) === 1) {
+          return ch;
+        }
+      }
+      return '';
+    }
+
+    function reversePairs(nums) {
+      let tmp = new Array(nums.length);
+      return recur(nums, tmp, 0, nums.length - 1);
+    }
+
+    function recur(nums, tmp, l, r) {
+      if (l >= r) return 0;
+      let mid = Math.floor((l + r) / 2);
+      let res = recur(nums, tmp, l, m) + recur(nums, tmp, m + 1, r);
+      let i = l, j = m + 1;
+      for (let k = l; k <= r; k++) {
+        tmp[k] = nums[k];
+      }
+      for (let k = l; k <= r; k++) {
+        if (i === m + 1) {
+          nums[k] = tmp[j++];
+        } else if (j === r + 1 || tmp[i] <= tmp[j]) {
+          nums[k] = tmp[i++];
+        } else {
+          nums[k] = tmp[j++];
+          res += m - i + 1;
+        }
+      }
+      return res;
+    }
+
+    function getIntersectionNode(headA, headB) {
+      if (headA === null || headB === null) {
+        return null;
+      }
+      let A = headA, B = headB;
+      while (A !== B) {
+        A = A ? A.next : headB;
+        B = B ? B.next : headA;
+      }
+      return A;
+    }
+
+    function search(nums, target) {
+      let i = 0, j = nums.length - 1;
+      while (i <= j) {
+        let mid = Math.floor((i + j) / 2);
+        if (nums[mid] >= target) {
+          j = mid - 1;
+        } else {
+          i = mid + 1;
+        }
+      }
+      let left = j;
+      i = 0, j = nums.length - 1;
+      while (i <= j) {
+        let mid = Math.floor((i + j) / 2);
+        if (nums[mid] > target) {
+          j = mid - 1;
+        } else {
+          i = mid + 1;
+        }
+      }
+      let right = i;
+      if (j >= 0 && nums[j] !== target || j < 0) return 0;
+      return right - left - 1;
+    }
+
+    function missingNumber(nums) {
+      let i = 0, j = nums.length - 1;
+      while (i <= j) {
+        let mid = Math.floor((i + j) / 2);
+        if (nums[mid] === mid) {
+          i = mid + 1;
+        } else {
+          j = mid - 1;
+        }
+      }
+      return i;
+    }
+
+    function kthLargest(root, k) {
+      let res;
+      if (root === null) return res;
+      dfs(root);
+      function dfs(root) {
+        if (root === null) return null;
+        dfs(root.right);
+        k--;
+        if (k === 0) res = root.val;
+        dfs(root.left);
+      }
+      return res;
+    }
+
+    function maxDepth(root) {
+      if (root === null) return 0;
+      return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+    }
+
+    function isBalanced(root) {
+      return maxDepth(root) !== -1;
+    }
+
+    function maxDepth(root) {
+      if (root === null) return 0;
+      if (maxDepth(root.left) === -1) return -1;
+      if (maxDepth(root.right) === -1) return -1;
+      return Math.abs(maxDepth(root.left) - maxDepth(root.right)) <= 1 ? 1 + Math.max(maxDepth(root.left), maxDepth(root.right)) : -1;
+    }
+
+    function singleNumbers(nums) {
+      let x = 0, y = 0, n = 0, m = 1;
+      for (let item of nums) {
+        n ^= item;
+      }
+
+      while ((n & m) === 0) {
+        m <<= 1;
+      }
+
+      for (let item of nums) {
+        if ((item & m) !== 0) {
+          x ^= item;
+        } else {
+          y ^= item;
+        }
+      }
+      return [x, y];
+    }
+
+    function singleNumber(nums) {
+      let count = new Array(32).fill(0);
+      for (let i = 0; i < nums.length; i++) {
+        for (let j = 0; j < 32; j++) {
+          count[j] += nums[i] & 1;
+          nums[i] >>= 1;
+        }
+      }
+      let res = 0, m = 3;
+      for (let i = 31; i >= 0; i--) {
+        res <<= 1;
+        res |= (count[i] % m);
+      }
+      return res;
+    }
+
+    function twoSum(nums, target) {
+      let i = 0, j = nums.length - 1;
+      while (i < j) {
+        let sum = nums[i] + nums[j];
+        if (sum < target) i++;
+        else if (sum > target) j--;
+        else return [nums[i], nums[j]];
+      }
+      return [];
+    }
+
+    function findContinuousSequence(target) {
+      let i = 1, j = 2, sum = 3;
+      let ans = [];
+      while (i < j) {
+        if (sum === target) {
+          let res = [];
+          for (let k = i; k <= j; k++) {
+            res[k - i] = k;
+          }
+          ans.push(res);
+        }
+        if (sum >= target) {
+          sum -= i;
+          i--;
+        } else {
+          j++;
+          sum += j;
+        }
+      }
+      return ans;
+    }
+
+    function reverseWords(s) {
+      if (!s.length) return s;
+      let arr = s.split(' ').reverse().filter(item => item.trim());
+      return arr.join(' ');
+    }
+
+    function reverseLeftWords(s, n) {
+      return s.substring(n, s.length) + s.substring(0, n);
+    }
+
+    function maxSlidingWindow(nums, k) {
+      let res = [];
+      if (nums.length === 0 || k === 0) return res;
+      let queue = [];
+      for (let i = 1 - k, j = 0; j < nums.length; i++, j++) {
+        if (i > 0 && nums[i - 1] === queue[0]) {
+          queue.shift();
+        }
+        while (queue.length && nums[j] > queue[queue.length - 1]) {
+          queue.pop();
+        }
+
+        queue.push(nums[j]);
+        if (i >= 0) {
+          res[i] = queue[0];
+        }
+      }
+      return res;
+    }
+
+    function dicesProbability(n) {
+      let bp = new Array(6).fill(1.0 / 6.0);
+      for (let i = 2; i <= n; i++) {
+        let tmp = new Array(5 * i + 1).fill(0);
+        for (let j = 0; j < bp.length; j++) {
+          for (let k = 0; k < 6; k++) {
+            tmp[j + k] += bp[j] / 6.0;
+          }
+        }
+        bp = tmp;
+      }
+      return bp;
+    }
+
+    function isStraight(nums) {
+      nums.sort((a, b) => a - b);
+      let j = 0;
+      for (let i = 0; i < nums.length - 1; i++) {
+        if (nums[i] === 0) j++;
+        else if (nums[i] === nums[i + 1]) return false;
+      }
+      return nums[4] - nums[j] < 5;
+    }
+
+    function lastRemaining(n, m) {
+      let x = 0;
+      for (let i = 2; i <= n; i++) {
+        x = (x + m) % i;
+      }
+      return x;
+    }
+
+    function maxProfit(prices) {
+      let profit = 0, cost = Infinity;
+      for (let price of prices) {
+        cost = Math.min(cost, price);
+        profit = Math.max(profit, price - cost);
+      }
+      return profit;
+    }
+
+    function sumNums(n) {
+      n && (n += sumNums(n - 1));
+      return n;
+    }
+
+    function add(a, b) {
+      while (b !== 0) {
+        let c = (a & b) << 1;
+        a ^= b;
+        b = c;
+      }
+      return a;
+    }
+
+    function constructArr(a) {
+      let res = new Array(a.length);
+      let p = 1, q = 1;
+      for (let i = 0; i < a.length; i++) {
+        res[i] = p;
+        p *= a[i];
+      }
+      for (let i = a.length - 1; i > 0; i--) {
+        q *= a[i];
+        res[i - 1] *= q;
+      }
+      return res;
+    }
+
+    function strToInt(str) {
+      const [MIN, MAX] = [-Math.pow(2, 31), Math.pow(2, 31)];
+      let s = str.trim();
+      if (s.length === 0) return 0;
+      let i = 1, sign = 1, res = 0;
+      if (s[0] === '-') sign = -1;
+      if (s[0] !== '+') i = 0;
+      for (let j = i; j < s.length; j++) {
+        if (s[j] >= 0 && s[j] <= 9 && s[j] != ' ') {
+          res = res * 10 + (s[j] - 0);
+          if (res * sign < MIN) return MIN;
+          else if (res * sign > MAX) return MAX;
+        } else break;
+      }
+      return res * sign;
+    }
+
+    function lowestCommonAncestor(root, p, q) {
+      if (root === null || p === root || q === root) {
+        return root;
+      }
+      let left = lowestCommonAncestor(root.left, p, q);
+      let right = lowestCommonAncestor(root.right, p, q);
+      if (left === null) return right;
+      if (right === null) return left;
+      return root;
+    }
+  </script>
+</body>
+
+</html>
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    grid-auto-flow: row;
+  }
+
+  /* 忘了告诉你了 你绝对不会是我仅有一次的勇敢 我生来便赤诚热烈 我要在这个快餐时代勇敢无数次 我不再是为了找到对的人 而是为了去认识真正的我自己 宝贝 你被我骗了 虽然在你离开后的生活里我还是会时常忍不住泪流满面 但我一直没有停止向前走 我要走到柳暗花明 天光大亮 做你永远都够不着的月亮 */
+</style>
