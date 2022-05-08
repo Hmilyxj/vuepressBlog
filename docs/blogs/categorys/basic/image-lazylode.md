@@ -1,5 +1,5 @@
 ---
-title: 前端基础之图片懒加载
+title: 前端基础之图片懒加载和预加载
 date: 2021-11-15
 subSidebar: "auto"
 isShowbgImage: false
@@ -12,9 +12,6 @@ tags:
   - 面试
 ---
 
-:::tip
-这是实现图片懒加载的过程
-:::
 <!-- more -->
 
 ## 懒加载原理
@@ -63,4 +60,23 @@ window.onload = function () {
     lazyLoad(imgs);
   }
 }
+```
+
+## 图片预加载
+```js
+// 懒加载的主要目的是优化前端性能，减少请求数或延迟请求数。
+// 预加载是牺牲前端性能，换取用户体验，使用户的操作得到最快的反映。
+var images = new Array()
+function preload() {
+  for (i = 0; i < preload.arguments.length; i++) {
+    images[i] = new Image()
+    images[i].src = preload.arguments[i]
+  }
+}
+// 图片文件路径，也可以是网络文件
+preload(
+  "../image/image-001.jpg",
+  "../image/image-002.jpg",
+  "../image/image-003.jpg"
+) 
 ```

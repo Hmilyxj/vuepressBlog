@@ -29,83 +29,6 @@ var twoSum = function(nums, target) {
     }
 };
 ```
-##  4. 寻找两个正序数组的中位数
-给定两个大小分别为 m 和 n 的正序（从小到大）数组 nums1 和 nums2。请你找出并返回这两个正序数组的 中位数 。
-```js
-var findMedianSortedArrays = function(nums1, nums2) {
-  //暴力法
-    let arr = [...nums1,...nums2];
-    arr.sort((a,b)=>a-b);
-    let n = arr.length;
-    if(!n){
-        return 0;
-    }else if(n % 2 != 0){
-        return arr[Math.floor(n / 2)];
-    }else{
-        return (arr[Math.floor(n / 2) - 1] + arr[Math.floor(n / 2)])/ 2
-    }
-};
-```
-```js
-var findMedianSortedArrays = function(nums1, nums2) {
-    //二分法
-    let m = nums1.length, n = nums2.length;
-    if(m > n) {
-        return findMedianSortedArrays(nums2, nums1);
-    }
-    let left = 0, right = m;
-    let maxleft = 0, minright = 0;
-
-    while(left <= right){
-        const i = left + Math.floor((right - left) / 2);
-        const j = Math.floor((n + m + 1) / 2) - i;
-
-        const maxleft1 = i == 0 ? -Infinity : nums1[i - 1];
-        const maxleft2 = j == 0 ? -Infinity : nums2[j - 1];
-        const minright1 = i == m ? Infinity : nums1[i];
-        const minright2 = j == n ? Infinity : nums2[j];
-
-        if(maxleft1 <= minright2) {
-            maxleft = Math.max(maxleft1, maxleft2);
-            minright = Math.min(minright1, minright2);
-            left = i + 1;
-        } else {
-            right = i - 1
-        }
-    }
-    return (m + n) % 2 == 0 ? (maxleft + minright) / 2 : maxleft;
-};
-```
-```js
-var findMedianSortedArrays = function (nums1, nums2) {
-    //第k小数，折半删除算法
-    var n = nums1.length;
-    var m = nums2.length;
-    var left = Math.floor((n + m + 1) / 2);
-    var right = Math.floor((n + m + 2) / 2);
-    //将偶数和奇数的情况合并，如果是奇数，会求两次同样的 k 。
-   return (getKth(nums1, 0, n - 1, nums2, 0, m - 1, left) + getKth(nums1, 0, n - 1, nums2, 0, m - 1, right)) / 2;
-};
-
-var getKth = function (nums1, start1, end1, nums2, start2, end2, k) {
-    var len1 = end1 - start1 + 1;
-    var len2 = end2 - start2 + 1;
-    //让 len1 的长度小于 len2，这样就能保证如果有数组空了，一定是 len1 
-    if (len1 > len2) return getKth(nums2, start2, end2, nums1, start1, end1, k);
-    if (len1 == 0) return nums2[start2 + k - 1];
-
-    if (k == 1) return Math.min(nums1[start1], nums2[start2]);
-
-    var i = start1 + Math.min(len1, Math.floor(k / 2)) - 1;
-    var j = start2 + Math.min(len2, Math.floor(k / 2)) - 1;
-    if (nums1[i] > nums2[j]) {
-    return getKth(nums1, start1, end1, nums2, j + 1, end2, k - (j - start2 + 1));
-    }
-    else {
-    return getKth(nums1, i + 1, end1, nums2, start2, end2, k - (i - start1 + 1));
-    }
-}
-```
 ##  11. 盛最多水的容器
 给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
 ```js
@@ -419,7 +342,7 @@ var solveSudoku = function(board) {
     return board;
 };
 ```
-## 39. 组合总和
+## 39. 组合总和(和为target的组合)
 给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，并以列表形式返回。你可以按 任意顺序 返回这些组合。
 candidates 中的 同一个 数字可以 无限制重复被选取 。如果至少一个数字的被选数量不同，则两种组合是不同的。
 ```js

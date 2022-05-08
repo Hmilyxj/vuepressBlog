@@ -16,7 +16,7 @@ tags:
 :::
 <!-- more -->
 
-##  购物车
+##  购物车(表格)
 ![](/code01.png)
 ![](/code02.png)
 ``` js
@@ -93,7 +93,7 @@ function link() {
 }
 ```
 
-##  倒计时
+##  倒计时(天时分秒)
 ![](/code06.png)
 ``` js
 function second(second) {

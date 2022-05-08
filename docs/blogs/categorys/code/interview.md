@@ -10,6 +10,322 @@ tags:
   - 前端
   - 面经
 ---
+## 取任意两个数之间的随机整数
+```js
+//取[min, max)左闭右开区间的任意数字，假如取[0, 100)之间的随机数，是取不到100的
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min; //不含最大值，含最小值
+}
+```
+```js
+//变成闭区间
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //不含最大值，含最小值
+}
+```
+## 数组中取出n个数和为m
+```js
+function find(arr, n, sum) {
+  //没有去重
+  let res = []
+  findGroup(arr, n, sum, [])
+  function findGroup(arr, n, sum, oneRes) {
+    if (n > arr.length) return false
+    if (sum == 0 && n == 0) {
+      res.push(oneRes)
+      return true;
+    } else if (n <= 0) {
+      return false;
+    }
+    if (n > 0) {
+      let temp = arr.slice(1, arr.length)
+      findGroup(temp, n - 1, sum - arr[0], [...oneRes, arr[0]])
+      findGroup(temp, n, sum, [...oneRes])
+    }
+  }
+  return res
+}
+```
+```js
+// 假设数组 const arr=[1,2,3,4] ，对应着每个元素都有标记 0 或者 1 。
+// 如果 N=4 ，也就是在这个数组中，需要选择 4 个元素，那么对应的标记就只有一种可能 1111 ，
+// 如果 N=3 ，那就有 4 种可能，分别是 1110 、 1101 、1011 以及 0111 (也就是 C4取3->4 ) 种可能。
+const search = (arr, count, sum) => {
+  // 计算某选择情况下有几个 `1`，也就是选择元素的个数
+  const n = num => {
+    let count = 0
+    while (num) {
+      num &= (num - 1)
+      count++
+    }
+    return count
+  }
+  // 对于 arr 来说，有 4 个元素，对应的选择方式就是从 0000( N = 0 )到 1111( N = 4 )的所有可能。
+  // 而 1111 就是 15 的二进制，也就是说这所有的可能其实对应的就是 0 - 15 中所有数对应的二进制。
+  // 这里采用了位运算--左移运算， 1 << 4 的结果是 16 。
+  let len = arr.length, bit = 1 << len, res = []
+  // 遍历所有的选择情况
+  for (let i = 1; i < bit; i++) {
+    // 满足选择的元素个数 === count
+    if (n(i) === count) {
+      let s = 0, temp = []
+      // 每一种满足个数为 N 的选择情况下，继续判断是否满足 和为 M
+      for (let j = 0; j < len; j++) {
+        // 那么，现在需要的最后一层判断就是选取的这些数字和必须等于 M
+        //1110 到 [1, 2, 3, 4] 的映射，就代表选取了 2, 3, 4，然后判断 2 + 3 + 4 与 M 。
+        // 这里可以这样看：1110 中的左边第一个 1 对应着数组 [1, 2, 3, 4] 中的 4 。
+        //我们知道前者 1110 其实就是对应的外层遍历中的 i = 14 的情况。
+        // 再看看数组[1, 2, 3, 4] ，我们可以将元素及其位置分别映射为 1000 0100 0010 0001。
+        // 实现方式也是通过位运算--左位移来实现：
+        // 1 << inx ，inx 为数组的下标。       
+        // 实质上，这里的 1 << j ，是指使用 1 的移位来生成其中仅设置第 j 位的位掩码。
+        // 比如：14 的二进制表示为 1110，其代表(从右往左)选取了第 2 , 3 , 4 位。      
+        if ((i & 1 << j) !== 0) {
+          s += arr[j]
+          temp.push(arr[j])
+        }
+      }
+      // 如果这种选择情况满足和为 M
+      if (s === sum) {
+        res.push(temp)
+      }
+    }
+  }
+  return res
+}
+```
+## 发起请求，在1秒内成功返回，显示loading菊花图直到1秒结束，超过1秒，返回成功后loading菊花图直接消失
+```js
+// 菊花图
+let loading = true
+
+let p1 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve()
+  }, 1000)
+})
+
+let p2 = function (resolve, reject) {
+  return fetch(...).then((res) => {
+    return res
+  })
+}
+
+Promise.all([p1, p2]).then(() => {
+  loading = false
+})
+```
+## axios处理高并发，链式调用
+```js
+// axios返回的是一个Promise
+axios.get(api1)
+  .then((res) => {
+    console.log(res);
+    return axios.get(api2);
+  })
+  .then((res) => {
+    console.log(res);
+    return axios.get(api3);
+  })
+```
+## 实现1秒后打印
+```js
+function wait(time) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, time)
+  })
+}
+
+wait(1000).then(() => console.log('done'))
+```
+## 判断两个数组是否完全相同
+```js
+function scalarArrayEquals(array1, array2) {
+  return array1.length === array2.length && array1.every(function (val, index) { return val === array2[index] })
+}
+console.log(scalarArrayEquals([2, 3, 4], [4, 3, 2]));
+```
+## 写个函数类似于栈,返回一个函数，pop,push(其实就是写个闭包)
+```js
+function creatStack() {
+  let res = Array.prototype.slice.call(arguments) || [];
+  let arr = [];//let 用闭包，this就是属性
+  return function () {
+    arr = Array.prototype.slice.call(arguments);
+    if (!arr.length) {
+      if (res.length) return res.pop();
+      else return null;
+    } else {
+      res = res.concat(arr);
+    }
+  };
+}
+//有两个变量调用creatStack怎么知道其内部的res是否相同
+//面试官说可以pop完之后再比较
+```
+## 先按age由小到大排序，当age相同时按name排序
+```js
+arr = [{ name: "hello", age: 15 }, { name: "amc", age: 17 }, { name: "abc", age: 17 }, { name: "zoo", age: 13 }];
+
+arr.sort((a, b) => a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1).sort((a, b) => a.age - b.age)
+
+console.log(arr)
+```
+## 判断对象是否相等
+```js
+function isObject(obj) {
+  return typeof obj === 'object' && obj !== null;
+}
+
+function compare(obj1, obj2) {
+  // 1.判断是不是引用类型，不是引用
+  if (!isObject(obj1) || !isObject(obj2)) {
+    return obj1 === obj2
+  }
+  // 2.比较是否为同一个内存地址
+  if (obj1 === obj2) return true
+  // 3.比较 key 的数量
+  const obj1KeysLength = Object.keys(obj1).length
+  const obj2KeysLength = Object.keys(obj2).length
+  if (obj1KeysLength !== obj2KeysLength) return false
+  // 4.比较 value 的值
+  for (let key in obj1) {
+    const result = compare(obj1[key], obj2[key])
+    if (!result) return false
+  }
+  return true
+}
+```
+## 数组交集并集
+```js
+function jiaoji(arr1, arr2) {
+  return arr1.filter((item) => arr2.includes(item))
+}
+
+function bingji(arr1, arr2) {
+  return new Set([...arr1, ...arr2]);
+}
+```
+## 多维数组全排列
+```js
+//输入：[['A', 'B'], ['a', 'b'], ['1', '2']];
+//输出：['Aa1','Aa2','Ab1','Ab2','Ba1','Ba2','Bb1','Bb2']
+function permutaion(arrs) {
+  return arrs.reduce((pre, cur) => {
+    const result = [];
+    for (let i = 0; i < pre.length; i++) {
+      for (let j = 0; j < cur.length; j++) {
+        result.push(pre[i] + cur[j])
+      }
+    }
+    return result
+  })
+}
+```
+## 时间戳(秒) 格式化为 时分秒（00:00:00）
+```js
+/**
+* 时间秒数格式化
+* @param s 时间戳（单位：秒）
+* @returns {*} 格式化后的时分秒
+*/
+var sec_to_time = function (s) {
+  var t;
+  if (s > -1) {
+    var hour = Math.floor(s / 3600);
+    var min = Math.floor(s / 60) % 60;
+    var sec = s % 60;
+    if (hour < 10) {
+      t = '0' + hour + ":";
+    } else {
+      t = hour + ":";
+    }
+
+    if (min < 10) { t += "0"; }
+    t += min + ":";
+    if (sec < 10) { t += "0"; }
+    t += sec.toFixed(2);
+  }
+  return t;
+}
+```
+## 时分秒（00:00:00） 转为 时间戳
+```js
+/**
+ * 时间转为秒
+ * @param time 时间(00:00:00)
+ * @returns {string} 时间戳（单位：秒）
+ */
+var time_to_sec = function (time) {
+  var s = '';
+
+  var hour = time.split(':')[0];
+  var min = time.split(':')[1];
+  var sec = time.split(':')[2];
+
+  s = Number(hour * 3600) + Number(min * 60) + Number(sec);
+
+  return s;
+};
+```
+## 红绿灯
+```js
+function red() {
+  console.log('red');
+}
+function green() {
+  console.log('green');
+}
+function yellow() {
+  console.log('yellow');
+}
+
+function light(cb, timer) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      cb();
+      resolve()
+    }, timer);
+  })
+}
+
+function step() {
+  Promise.resolve().then(() => {
+    return light(red, 3000)
+  }).then(() => {
+    return light(green, 2000)
+  }).then(() => {
+    return light(yellow, 1000)
+  }).finally(() => {
+    return step()
+  })
+}
+```
+```js
+async function timer(color, delay) {
+  return new Promise((res, rej) => {
+    console.log(color)
+    setTimeout(() => {
+      res()
+    }, delay);
+  })
+}
+
+async function light() {
+  await timer('green', 1000)
+  await timer('yellow', 2000)
+  await timer('red', 3000)
+  await light()
+
+}
+light()
+```
 ## 本地无法实现加法功能，现有其他团队提供的api
 ```js
 async function add() {
@@ -199,37 +515,6 @@ actions: {
   }
 </script>
 ```
-## 手写ajax
-```js
-// 结合Promise
-function Ajax(url) {
-  const p = new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', url, false);
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        // 这里的 status 可以适当修改
-        if (xhr.status === 200) {
-          resolve(
-            // 将得到 responseText 转换为JSON格式数据
-            JSON.parse(xhr.responseText)
-          );
-        } else if (xhr.status === 404) {
-          reject(new Error('404 not found'))
-        }
-      }
-    }
-    xhr.send(null);
-  });
-  return p;
-}
-const url = './data/test.json';
-Ajax(url).then(res => console.log(res)).catch(err => console.err(err))
-
-// 若想设置POST请求版，则需更改
-// xhr.open里的参数为xhr.open('POST', url, true/false);
-// xhr.send里的参数为xhr.send(p);
-```
 ## sort排序字符串 + 数字
 ```js
 let arr = ['c', 'a', 'f', 'b', 1, 10, 2, 12];
@@ -245,7 +530,7 @@ let ASCarr = arr.sort((a, b) => {
 
 // ["a","b","c","f",1,2,10,12]
 ```
-## dom转json
+## dom转json(template生成虚拟dom)
 ```html
 <div>
   <span>
@@ -300,6 +585,96 @@ function dom2json() {
 
 dom2json()
 ```
+## json转dom(虚拟dom转真实dom)
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <style>
+    .title {
+      background-color: red;
+    }
+
+    .h1 {
+      color: green;
+    }
+
+    .h4 {
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script>
+
+    // {
+    //   tag,
+    //   attrs, 
+    //   children
+    // }
+
+    let obj = {
+      tag: 'div',
+      attrs: {
+        class: 'title'
+      },
+      children: [
+        {
+          tag: 'h1',
+          attrs: {
+            class: 'h1',
+          },
+          children: '我是h1标签'
+        }, {
+          tag: 'h4',
+          attrs: {
+            class: 'h4'
+          },
+          children: '我是h4标签'
+        }
+      ]
+    }
+
+    render(obj, '#app')
+    
+    function render(vnode, container) {
+      if (typeof container !== 'object') {
+        container = document.querySelector(container)
+      }
+      container.appendChild(_render(vnode))
+    }
+
+    function _render(vnode) {
+      //字符串
+      if (typeof vnode !== 'object') {
+        return document.createTextNode(vnode)
+      } else {
+        let dom = document.createElement(vnode.tag)
+        if (vnode.attrs) {
+          for (let key in vnode.attrs) {
+            let curValue = vnode.attrs[key]
+            dom.setAttribute(key, curValue)
+          }
+        }
+        if (vnode.children) {
+          if (typeof vnode.children === 'object') {
+            vnode.children.forEach(child => {
+              render(child, dom)
+            })
+          } else {
+            render(vnode.children, dom)
+          }
+        }
+        return dom
+      }
+    }
+  </script>
+</body>
+</html>
+```
 ## 消失的数字，数组nums包含从0-n的所有整数，但其中缺了一个
 ```js
 var missingNumber = function (nums) {
@@ -336,7 +711,7 @@ for (let i = 0; i < numsSize; i++) {
 miss = sum - miss;
 return miss;
 ```
-## 字符串数组转换成{value: 'abc',children: {}}
+## 字符串数组转树'[abc[bcd[def]]]' -- > { value: 'abc', children: { value: 'bcd', children: { value: 'def' } } }
 ```js
 // // 示例一:
 // 'abc' -- > { value: 'abc' }
@@ -367,7 +742,7 @@ function convert(arr) {
 }
 fn('[abc[bcd[def]]]');
 ```
-## 手写normalize函数，字符串数组转换成{value: 'abc',children: {}}
+## 手写normalize函数，字符串数组转树{value: 'abc',children: {}}
 ```js
 let normalize = str => {
   let result = {}
@@ -440,117 +815,7 @@ return new Promise((resolve, reject) => {
 })
 }
 ```
-## 简单实现addclass,removeclass
-classList属性的值为DOMTokenList对象，关于DOMTokenList官方解释是一组空格分隔的标记，与Array一样具有length属性，且索引从0开始，但无法使用Array对象的方法。
-```js
-let div = document.querySelector('div');
-div.classList.add("newClass");
-div.classList.remove("newClass");
-```
-```js
-//自定义添加class方法
-function addClass(ele, name) {
-    if (name) {
-        //判断该dom有没有class，有则在原class基础上增加，无则直接赋值
-        ele.className ? ele.className = ele.className + " " + name : ele.className = name;
-    } else {
-        throw new Error("请传递一个有效的class类名");
-    };
-};
- 
-//自定义删除class类方法
-function removeClass(ele, name) {
-    //将className属性转为数组
-    let classArr = ele.className.split(" "),
-        index = classArr.indexOf(name);
-    //将符合条件的class类删除
-    index > -1 ? classArr.splice(index, 1) : null;
-    ele.className = classArr.join(" ");
-};
- 
-let div = document.querySelector('div');
-//测试调用
-addClass(div, 'demo1');
-removeClass(div, 'demo1');
-```
-## 实现addClass(class为数组)
-```js
-// 1. 判断是否有DOM元素是否有class属性（ 没有则创建并且添加className ）
-// 2. 判断DOM元素的class样式中是否已存在要添加的className
-// 3. 将要添加的样式分割为数组，一个一个进行判断
-function hasAttr (element) {
-  return element.hasAttribute('class')
-}
-//2. 判断DOM元素的class样式中是否已存在要添加的className
-//   不管要添加多少class,都将其转化为数组判断是否与原样式重复
-function hasClass(classArr, new_class) {
-  var flag = false
-  new_class.forEach(function (value, index) {
-    if (classArr.indexOf(value) !== -1) {
-      flag = true
-    }
-  })
-  return flag
-}
 
-function addClass(element, new_class) {
-  if (hasAttr(element)) {
-    var classArr = element.className.split(' ')
-    new_class = new_class.split(' ')
-
-    if (hasClass(classArr, new_class)) {
-      new_class.forEach(function (value, index) {
-        if (classArr.indexOf(value) === -1) {
-          tmp.push(value)
-        }
-      })
-    } else {
-      tmp = new_class
-    }
-    element.className += ' ' + tmp.join(' ')
-  } else {
-    element.setAttribute('class', new_class)
-  }
-}
-```
-## 实现removeClass(class为数组)
-```js
-//1. 判断是否有DOM元素是否有class属性
-function hasAttr(element) {
-  return element.hasAttribute('class')
-}
-
-//2. 判断DOM元素的class样式中是否已存在要添加的className
-//   不管要添加多少class,都将其转化为数组判断是否与原样式重复
-function hasClass(classArr, new_class) {
-  var flag = false
-  new_class.forEach(function (value, index) {
-    if (classArr.indexOf(value) !== -1) {
-      flag = true
-    }
-  })
-  return flag
-}
-
-function removeClass(element, remove_class) {
-  if (hasAttr(element)) {
-    var classArr = element.className.split(' ')
-    remove_class = remove_class.split(' ')
-
-    if (hasClass(classArr, remove_class)) {
-      remove_class.forEach(function (value, index) {
-        if (classArr.indexOf(value) !== -1) {
-          classArr.splice(classArr.indexOf(value), 1)
-        }
-      })
-    }
-    element.className = classArr.join(' ')
-  } else {
-    console.log('该元素没有class属性')
-    return
-  }
-}
-```
 ## 得到一个数组，数组的每一项是一个标签名
 ```js
 //其实只要知道如何获取页面中所有元素就能做出来, 通过document.querySelectorAll("*")获取
@@ -737,278 +1002,7 @@ let add1 = memorize(add);
 console.log(add1(1, 2, 3))
 console.log(add1(1, 2, 3))
 ```
-## css实现梯形
-法一：做三个‘小盒子’ 1号，和3号小盒子都做成小三角形，2号小盒子做成一个正方形。
-```html
-<div class='box'></div>
-<div class='box2'></div>
-<div class='box3'></div>
-```
-```css
-.box,
-.box3 {
-  width: 0px;
-  height: 0px;
-  border-top: 50px solid transparent;
-  border-right: 50px solid transparent;
-  border-left: 50px solid transparent;
-  border-bottom: 50px solid green;
-  margin-bottom: 10px;
-  display: inline-block;
-}
-
-.box2 {
-  width: 50px;
-  height: 50px;
-  background-color: green;
-  display: inline-block;
-}
-
-.box {
-  transform: translate(54px, 10px);
-}
-
-.box3 {
-  transform: translate(-54px, 10px);
-}
-```
-法二：利用border
-```css
-<div class='box'></div>
-.box {
-  width: 60px;
-  height: 60px;
-  /* border-top: 20px solid; */
-  border-left: 20px solid transparent;
-  border-right: 20px solid transparent;
-  border-bottom: 20px solid;
-}
-```
-法三：利用3d旋转和透视操作
-```css
-<div class='box'></div>
-.box {
-  width: 60px;
-  height: 60px;
-  background-color: greenyellow;
-  transform: perspective(2em) rotateX(10deg);
-  margin-left: 30px;
-}
-```
-## 轮播图
-```css
-.box {
-  width: 490px;
-  height: 170px;
-  margin: 100px auto;
-  padding: 5px;
-  border: 1px solid #ccc;
-  overflow: hidden;
-}
-
-.inner {
-  width: 490px;
-  height: 170px;
-  background-color: pink;
-  overflow: hidden;
-  position: relative;
-}
-
-.inner ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  width: 1000%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.inner li {
-  float: left;
-}
-
-.inner li img {
-  vertical-align: top;
-  width: 490px;
-  height: 170px;
-}
-
-/* 导航器 */
-.square {
-  position: absolute;
-  right: 10px;
-  bottom: 10px;
-}
-
-.square span {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  background-color: #fff;
-  text-align: center;
-  line-height: 16px;
-  cursor: pointer;
-}
-
-.square span.current {
-  background-color: orangered;
-  color: #fff;
-}
-```
-```html
-<div class="box" id="box">
-<div class="inner">
-  <ul>
-    <li>
-      <a href="#"><img src="images/01.jpg" alt="" /></a>
-    </li>
-    <li>
-      <a href="#"><img src="images/02.jpg" alt="" /></a>
-    </li>
-    <li>
-      <a href="#"><img src="images/03.jpg" alt="" /></a>
-    </li>
-    <li>
-      <a href="#"><img src="images/04.jpg" alt="" /></a>
-    </li>
-    <li>
-      <a href="#"><img src="images/05.jpg" alt="" /></a>
-    </li>
-  </ul>
-  <div class="square">
-    <span class="current">1</span>
-    <span>2</span>
-    <span>3</span>
-    <span>4</span>
-    <span>5</span>
-  </div>
-</div>
-</div>
-```
-```js
-//需求：鼠标经过按钮 按钮排他 还要把ul以动画的方式移动到指定位置
-//1.鼠标经过按钮 按钮排他
-var box = document.getElementById('box')
-var inner = box.children[0]
-var ul = inner.children[0]
-var squareList = inner.children[1]
-var squares = squareList.children //所有按钮
-var imgWidth = inner.offsetWidth //图片宽度
-
-//给每一个按钮注册鼠标经过事件
-for (var i = 0; i < squares.length; i++) {
-  squares[i].index = i //把索引保存在自定义属性中
-  squares[i].onmouseover = function () {
-    for (var j = 0; j < squares.length; j++) {
-      squares[j].className = ''
-    }
-    //留下我自己
-    this.className = 'current'
-    //目标 和 当前按钮索引有关 和 图片宽度有关 而且是负数
-    var target = -this.index * imgWidth
-    animate(ul, target)
-  }
-}
-
-function animate(obj, target) {
-  console.log(target)
-  clearInterval(obj.timer)
-  obj.timer = setInterval(function () {
-    var leader = obj.offsetLeft
-    var step = 30
-    step = leader < target ? step : -step //step有了正负
-    if (Math.abs(leader - target) >= Math.abs(step)) {
-      leader = leader + step
-      obj.style.left = leader + 'px'
-    } else {
-      obj.style.left = target + 'px' //手动放到终点
-      clearInterval(obj.timer)
-    }
-  }, 15)
-}
-```
-## 移动动画效果
-```html
-<button id="btn">奔跑吧盒子</button>
-<div id="demo"></div>
-<script>
-    var timer = null;
-    var btn = document.getElementById("btn");
-    var demo = document.getElementById("demo");
-    // 点击按钮 让盒子跑
-    btn.onclick = function () {
-        clearInterval(timer);//防止重复设定定时器
-        timer = setInterval(function () {
-            var target = 400; // 目标值
-            var leader = demo.offsetLeft; // 获取当前位置
-            var step = 10;
-            if (leader < target) {
-                leader = leader + step;
-                demo.style.left = leader + "px";
-            } else {
-                clearInterval(timer);
-            }
-        }, 15);
-    };
-</script>
-```
-```css
-* {
-  margin: 0;
-  padding: 0;
-}
-
-#demo {
-  width: 100px;
-  height: 100px;
-  background-color: red;
-  position: absolute;
-  /*一定要记得加定位*/
-}
-```
-## css实现跑马灯
-利用keyframes延迟动画,动画加载到百分之多少动作进行到什么程度
-@keyframes light {
-  %0 {left: 200px;}
-  10% {left: 400px;}
-}
-```html
-<div class="content"></div>
-```
-```css
-.content {
-  margin: 100px auto;
-  width: 30px;
-  height: 30px;
-  position: relative;
-}
-
-.content::before {
-  position: absolute;
-  content: "";
-  display: block;
-  top: -30px;
-  left: -30px;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  animation: light 0.5s infinite;
-}
-
-@-webkit-keyframes light {
-  from {
-    background-color: #ff5722;
-    box-shadow: 50px 0 0 0 #ff0, 100px 0 0 0 #ff5722, 150px 0 0 0 #ff0, 200px 0 0 0 #ff5722, 250px 0 0 0 #ff0;
-  }
-
-  to {
-    background-color: #ff0;
-    box-shadow: 50px 0 0 0 #ff5722, 100px 0 0 0 #ff0, 150px 0 0 0 #ff5722, 200px 0 0 0 #ff0, 250px 0 0 0 #ff5722;
-  }
-}
-```
-## 怎么用原生js实现类似于jquery的链式的方法调用
+## 用原生js实现类似于jquery的链式的方法调用
 ```js
 window.$ = function(){
     return new _$(id);
@@ -1283,7 +1277,7 @@ axios.get('api/request', { cancelToken: source.token })
 source.cancel('Operation canceled by the user.');
 
 ```
-## 实现request(封装axios)
+## 实现request(封装axios)项目拦截器
 ```js
 import axios from 'axios'
 import vuex from '../store/index'
@@ -1531,7 +1525,36 @@ let res = chainPromise(time);
 //等待10s后输出结果
 res.then(console.log);
 ```
-## 部门分级关系(数组转换树)
+## 树转数组
+```js
+//非递归
+function treeConvertToArr(root) {
+  let arrs = [];
+  let result = [];
+  arrs = arrs.concat(tree);
+  while (arrs.length) {
+    let first = arrs.shift(); // 弹出第一个元素
+    if (first.children) {
+      //如果有children
+      arrs = arrs.concat(first.children);
+      delete first["children"];
+    }
+    result.push(first);
+  }
+  return result;
+}
+```
+```js
+//递归有点问题
+let res = []
+const fn = (source) => {
+  source.forEach(el => {
+    res.push(el)
+    el.children && el.children.length > 0 ? fn(el.children) : ""
+  })
+}
+```
+## 部门分级关系(数组转树)
 ```js
 let list = [
   { id: 1, name: "部门A", parentId: 0 },
@@ -1547,65 +1570,10 @@ let list = [
  
 const result = convert(list);
 console.log(result);
-// 转换后的结果如下
- 
-// let result = [
-//   {
-//     id: 1,
-//
-//     name: "部门A",
-//
-//     parentId: 0,
-//
-//     children: [
-//       {
-//         id: 3,
-//
-//         name: "部门C",
-//
-//         parentId: 1,
-//
-//         children: [
-//           {
-//             id: 6,
-//
-//             name: "部门F",
-//
-//             parentId: 3,
-//           },
-//           {
-//             id: 16,
-//
-//             name: "部门L",
-//
-//             parentId: 3,
-//           },
-//         ],
-//       },
-//
-//       {
-//         id: 4,
-//
-//         name: "部门D",
-//
-//         parentId: 1,
-//
-//         children: [
-//           {
-//             id: 8,
-//
-//             name: "部门H",
-//
-//             parentId: 4,
-//           },
-//         ],
-//       },
-//     ],
-//   },
-// ];
  
 ```
 ```js
+//递归实现
 function convert(list, id = 0) {
   let res = [];
   for (let i = 0; i < list.length; i++) {
@@ -1616,6 +1584,55 @@ function convert(list, id = 0) {
   }
   return res;
 }
+```
+```js
+//两个循环
+function convert(list) {
+  const tree = []
+  const record = {}
+
+  for (let i = 0; i < list.length; i++) {
+    list[i].children = [] // 重置 children
+    record[list[i].id] = list[i]
+  }
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].parentId) {
+      if (record[list[i].parentId]) {
+        record[list[i].parentId].children.push(list[i])
+      }
+    } else {
+      tree.push(list[i])
+    }
+  }
+  return tree
+}
+```
+```js
+//一个循环
+function convert(list) {
+  const tree = []
+  const record = {}
+
+  for (let i = 0; i < list.length; i++) {
+    let id = list[i].id
+
+    if (record[id]) {
+      list[i].children = record[id]
+    } else {
+      list[i].children = record[id] = []
+    }
+    if (list[i].parentId) {
+      if (!record[list[i].parentId]) {
+        record[list[i].parentId] = []
+      }
+      record[list[i].parentId].push(list[i])
+    } else {
+      tree.push(list[i])
+    }
+  }
+  return tree
+}
+
 ```
 ## 查找数组中，符合 where 条件的数据，并根据 orderBy 指定的条件进行排序
 ```js
@@ -1635,9 +1652,6 @@ const result = find(data)
 console.log(result.value); // 返回 [{ userId: 19, title: 'title2'}, { userId: 8, title: 'title1' }];
 ```
 ```js
-作者：打咩
-链接：https://www.nowcoder.com/discuss/921867?source_id=profile_create_nctrack&channel=-1
-来源：牛客网
 
 function find(data) {
   return {
@@ -1723,62 +1737,6 @@ function fn(n) {
   }
   return [...set]
 }
-```
-## js点击按钮返回页面顶部
-```html
-<div id="app" class="container">
-  我是主页
-</div>
-<button id="btn">回到顶部</button>
-```
-```js
-window.onload = function () {
-  var btn = document.getElementById('btn');
-  var timer = null;
-  var isTop = true;
-  //获取页面可视区高度
-  var clientHeight = document.documentElement.clientHeight;
-  //滚动条滚动时触发
-  window.onscroll = function () {
-    //显示回到顶部按钮
-    // var osTop = document.documentElement.scrollTop || document.body.scrollTop;
-    // if (osTop >= clientHeight) {
-    // 	btn.style.display = "block";
-    // } else {
-    // 	btn.style.display = "none";
-    // };
-    //回到顶部过程中用户滚动滚动条，停止定时器
-    if (!isTop) {
-      clearInterval(timer);
-    };
-    isTop = false;
-  };
-  btn.onclick = function () {
-    //设置定时器
-    timer = setInterval(function () {
-      //获取滚动条距离顶部高度
-      var osTop = document.documentElement.scrollTop || document.body.scrollTop;
-      var ispeed = -20;
-      document.documentElement.scrollTop = document.body.scrollTop = osTop + ispeed;
-      //到达顶部，清除定时器
-      if (osTop == 0) {
-        clearInterval(timer);
-      };
-      isTop = true;
-    }, 100);
-  };
-  // btn.onclick = function () {
-  //   var height = document.documentElement.scrollTop || document.body.scrollTop;
-  //   var t = setInterval(() => {
-  //     height -= 50;
-  //     if (height > 0) {
-  //       window.scrollTo(0, height);
-  //     } else {
-  //       window.scrollTo(0, 0);
-  //       clearInterval(t);
-  //     }
-  //   }, 10);
-};
 ```
 ## 大数相加
 ```js
@@ -1878,49 +1836,7 @@ function search(arr, target, left, right) {
   }
 }
 ```
-## 盒子跟着鼠标移动(拖动div)
-鼠标按下，在鼠标移动过程中，盒子跟着一起移动，鼠标松开，盒子停止移动
-```css
-#box{
-  width: 200px;
-  height: 200px;
-  position: absolute;
-  background-color: seagreen;
-}
-```
-```js
- <div id="div1"></div>
-  <script src="drag.js"></script>
-  <script>
-    window.onload = function () {
-      var div1 = document.getElementById("div1");
-      div1.onmousedown = function (ev) {
-        var oevent = ev || event;
-        // 鼠标离盒子边框的距离 当前鼠标离浏览器左上角的距离 - 当前盒子里浏览器左上角的距离
-        var distanceX = oevent.clientX - div1.offsetLeft;//或者oevent.offsetX
-        var distanceY = oevent.clientY - div1.offsetTop;//或者oevent.offsetY
 
-        document.onmousemove = function (ev) {
-          var oevent = ev || event;
-          // 当前鼠标的距离 - 离盒子边框的距离
-          div1.style.left = oevent.clientX - distanceX + 'px';
-          div1.style.top = oevent.clientY - distanceY + 'px';
-
-          // 点击之后获取当前窗口的宽高
-          // var windowWidth = document.documentElement.clientWidth || document.body.clientWidth;
-          // var windowHeight = document.documentElement.clientHeight || ocument.body.clientHeight;
-          // if (oevent.clientY + 20 >= windowHeight || oevent.clientX + 20 >= windowWidth || oevent.clientY <= 0 || oevent.clientX <= 0) {
-          //   document.onmousemove = null;
-          // }
-        };
-        document.onmouseup = function () {
-          document.onmousemove = null;
-          document.onmouseup = null;
-        };
-      };
-    }
-  </script>
-```
 ## 工厂模式
 ```js
 function factory(name, age) {
@@ -2033,7 +1949,7 @@ var compareVersion = function(version1, version2) {
     return result;
 };
 ```
-## n个数数组中选m个数的组合
+## 数组长为n中选m个数的组合
 对于f(n,m)，我们从数组中任意取一个元素，然后再从剩下的n-1个元素中取m-1个元素，既f(n-1,m-1)；
 重复第2步，直到f(n-m+1,1)，即从n-m+1个元素中取出最后一个元素；
 把有效的组合压栈，并在压栈前判断该组合在栈中是否存在，避免由于数组元素的重复而导致组合重复
@@ -2140,35 +2056,7 @@ function recur(ans, res, root, target) {
 
 console.log(fn(root, [2, 5, 7, 9]))
 ```
-## 原生js点击ul下边li显示其索引值
-第一种
-```js
-<ul id = "list">
-    <li>click</li>
-    <li>click</li>
-    <li>click</li>
-    <li>click</li>
-    <li>click</li>
-</ul>
-var list = document.getElementsByTagName("li");
-for(var i = 0; i < list.length; i++) {
-  list[i].index = i;
-  list[i].onclick = function() {
-    console.log(this.index);
-  }
-}
-```
-第二种闭包
-```js
-var list = document.getElementsByTagName('li');
-for (var i = 0; i < list.length; i++) {
-  (function(j){
-      list[j].addEventListener("click", function(e) {
-          alert(j)
-      }, false);
-  })(i);
-}
-```
+
 ## localstorage实现带过期时间的缓存功能
 localstorage支持以下方法
 保存数据：localStorage.setItem(key,value);
@@ -2312,30 +2200,4 @@ String.prototype.trimRight = function () {
     return str.substring(0, index + 1)
 }
 console.log('    adv    '.trimRight())
-```
-## 写一个让图片无限旋转的操作
-使用 -webkit-animation 和 @-webkit-keyframes 组合使用来完成。
-
--webkit-animation 是一个复合属性，
-name: 是 @-webkit-keyframes 中需要指定的方法，用来执行动画。
-duration: 动画一个周期执行的时长。
-timing-function: 动画执行的效果，可以是线性的，也可以是"快速进入慢速出来"等。
-delay: 动画延时执行的时长。
-iteration_count: 动画循环执行次数，如果是infinite，则无限执行。
-direction: 动画执行方向。
-
-@-webkit-keyframes 中的from和to 两个属性，就是指定动画执行的初始值和结束值。
-```css
-.img{
-  animation: rotation 3s linear infinite;
-}
-
-@-webkit-keyframes rotation {
-  from {
-    -webkit-transform: rotate(0deg);
-  }
-  to {
-    -webkit-transform: rotate(360deg);
-  }
-}
 ```

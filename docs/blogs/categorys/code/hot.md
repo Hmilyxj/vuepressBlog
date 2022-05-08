@@ -567,7 +567,7 @@ var mergeTwoLists = function(list1, list2) {
     return dum.next;
 };
 ```
-## 141. 环形链表（快慢指针）
+## 141. 环形链表（快慢指针）是否有环
 给你一个链表的头节点 head ，判断链表中是否有环。
 如果链表中有某个节点，可以通过连续跟踪 next 指针再次到达，则链表中存在环。 为了表示给定链表中的环，评测系统内部使用整数 pos 来表示链表尾连接到链表中的位置（索引从 0 开始）。注意：pos 不作为参数进行传递 。仅仅是为了标识链表的实际情况。
 如果链表中存在环 ，则返回 true 。 否则，返回 false 。
@@ -586,7 +586,7 @@ var hasCycle = function(head) {
     return true;
 };
 ```
-## 142. 环形链表 II
+## 142. 环形链表 II 返回链表开始入环的第一个节点。
 给定一个链表的头节点  head ，返回链表开始入环的第一个节点。 如果链表无环，则返回 null。
 ```js
 var detectCycle = function(head) {
@@ -837,6 +837,7 @@ var findMedianSortedArrays = function(nums1, nums2) {
     return (m + n) % 2 == 0 ? (maxleft + minright) / 2 : maxleft;
 };
 ```
+## 第k小数，折半删除算法
 ```js
 var findMedianSortedArrays = function (nums1, nums2) {
     //第k小数，折半删除算法
@@ -1055,31 +1056,6 @@ var dfs = function(ans, res, nums, index){
         valid[i] = true;
         dfs(ans, res, nums, index + 1);
         valid[i] = false;
-        res.splice(res.length - 1, 1);
-    }
-}
-```
-## 39. 组合总和
-给你一个 无重复元素 的整数数组 candidates 和一个目标整数 target ，找出 candidates 中可以使数字和为目标数 target 的 所有 不同组合 ，并以列表形式返回。你可以按 任意顺序 返回这些组合。
-candidates 中的 同一个 数字可以 无限制重复被选取 。如果至少一个数字的被选数量不同，则两种组合是不同的。 
-```js
-var combinationSum = function(candidates, target) {
-    let ans = [], res = [];
-    dfs(candidates, target, ans, res, 0);
-    return ans;
-};
-
-var dfs = function(candidates, target, ans, res, index){
-    if(index == candidates.length) return;
-    if(target == 0){
-        ans.push(Array.from(res));
-        return;
-    }
-
-    dfs(candidates, target, ans, res, index + 1);
-    if(target - candidates[index] >= 0){
-        res.push(candidates[index]);
-        dfs(candidates, target - candidates[index], ans, res, index);
         res.splice(res.length - 1, 1);
     }
 }
@@ -1498,18 +1474,6 @@ var groupAnagrams = function (strs) {
   }
   return Array.from(map.values())
 };
-```
-## 53. 最大子数组和
-给你一个整数数组 nums ，请你找出一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
-```js
-function maxSubArray(nums) {
-  let res = nums[0];
-  for (let i = 1; i < nums.length; i++) {
-    nums[i] += Math.max(0, nums[i - 1]);
-    res = Math.max(res, nums[i]);
-  }
-  return res;
-}
 ```
 ## 55. 跳跃游戏
 给定一个非负整数数组 nums ，你最初位于数组的 第一个下标 。

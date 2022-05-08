@@ -1,13 +1,12 @@
 ---
-title: 前端基础之响应式原理
+title: 前端基础之响应式原理vue2
 date: 2021-11-10
 subSidebar: "auto"
 isShowbgImage: false
 categories:
-  - 前端基础
+  - 知识拓展
 tags: 
   - vue2
-  - vue3
   - 前端
   - 面试
   - 基础概念
@@ -15,6 +14,7 @@ tags:
 :::tip
 转载自https://blog.csdn.net/weixin_37517329/article/details/121861442
 :::
+## 观察者模式
 ## vue2响应式原理
 ```html
 <body>
@@ -55,43 +55,6 @@ tags:
       })
     }
 
-    // 测试一下 o(*￣︶￣*)o 
-    vm.msg = 'Hello Vue'
-    console.log(vm.msg)
-  </script>
-</body>
-```
-## vue3响应式原理
-Proxy对象用于创建一个对象的代理，从而实现基本操作的拦截和自定义（如属性查找、赋值、枚举、函数调用等）
-
-语法
-const p = new Proxy(target, handler)
-```html
-<body>
-  <div id="app"> </div>
-  <script>
-    // 模拟Vue中的data选项
-    let data = {
-      msg: 'hello vue',
-      value: 7
-    }
-    // 模拟Vue实例
-    let vm = new Proxy(data, {
-      // 执行代理行为的函数 当访问vm的成员会执行
-      get (target, key) {
-        console.log('get, key: ', key, target[key])
-        return target[key]
-      },
-      // 当设置vm的成员会执行
-      set (target, key, newValue) {
-        console.log('set, key: ', key, newValue)
-        if (target[key] === newValue) {
-          return
-        }
-        target[key] = newValue
-        document.querySelector('#app').textContent = target[key]
-      }
-    })
     // 测试一下 o(*￣︶￣*)o 
     vm.msg = 'Hello Vue'
     console.log(vm.msg)
@@ -145,7 +108,7 @@ class Observer {
       // 获取值的时候执行
       get() {
         // 在这里添加观察者对象 Dep.target 表示观察者
-        Dep.target && dep.addSub(Dep.target)// dep.depend(); // 本次新增
+        Dep.target && dep.depend(Dep.target)// dep.depend(); // 本次新增
         return value
       },
        // 设置值的时候执行
@@ -310,7 +273,7 @@ class Compiler {
  * - target: Watcher
  *
  * 方法：
- * - addSub(sub): 添加观察者
+ * - depend(sub): 添加观察者
  * - notify(): 触发观察者的update
  *
  */
@@ -321,7 +284,7 @@ class Compiler {
     this.subs = []
   }
   // 添加观察者
-  addSub(sub) {
+  depend(sub) {
     // 判断观察者是否存在、是否拥有update且typeof为function
     if (sub && sub.update && typeof sub.update === "function") {
       this.subs.push(sub);

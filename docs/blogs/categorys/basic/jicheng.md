@@ -121,6 +121,30 @@ let child = ChildFactory(parent)
 console.log(child.getName())
 console.log(child.getPlay())
 ```
+## 寄生式组合继承
+```js
+function Person(obj) {
+  this.name = obj.name
+  this.age = obj.age
+}
+Person.prototype.add = function (value) {
+  console.log(value)
+}
+var p1 = new Person({ name: "番茄", age: 18 })
+
+function Person1(obj) {
+  Person.call(this, obj)
+  this.sex = obj.sex
+}
+// 这一步是继承的关键
+Person1.prototype = Object.create(Person.prototype);
+Person1.prototype.constructor = Person1;
+
+Person1.prototype.play = function (value) {
+  console.log(value)
+}
+var p2 = new Person1({ name: "鸡蛋", age: 118, sex: "男" })
+```
 寄生组合继承解决了上述五种方案中的痛点，算是比较好地实现了我们想要的继承效果。当然，缺点也还是有的，就是篇幅太长了，搞个继承要写这么多代码，各种 prototype ，还要手动将原型上的构造指针指回构造函数……
 ##  es6 class 关键字
 ```js
@@ -144,4 +168,40 @@ class Child extends Parent {
 }
 const child = new Child('william', 18)
 child.getName()// william
+```
+## js实现多重继承
+ 将父类的实例，赋值给子类的原型和原型上一个属性superClass，将子类的实例赋值给孙类的原型和原型上一个属性superClass。 孙类实例继承了孙类，子类和父类原型上所有的属性和方法，并可以通过superClass向上访问原型链，同理，子类实例继承了子类和父类原型上的属性和方法，并可以通过superClass访问子类原型
+```js
+function Person() { }
+    Person.prototype = {
+      name: '爷',
+      run: function () {
+        console.log('run ' + this.name)
+      }
+    }
+
+    function Father() { }
+    Father.prototype = new Person()
+    Father.prototype.superClass = new Person()
+    Father.prototype.name = '父'
+    Father.prototype.run = function () {
+      console.log('run2')
+    }
+
+    function Son() { }
+    Son.prototype = new Father()
+    Son.prototype.superClass = new Father()
+    //Son.prototype.name = '子'
+    Son.prototype.run = function () {
+      console.log('run3')
+    }
+    var child = new Son()
+    console.log(child.superClass)
+  	console.log(child.superClass.superClass)
+    
+    // 用call调用Person的run方法(this指向实例化对象child，但child没有name属性，所以this.name用的是Father的name)
+    child.superClass.superClass.run.call(child); // run 父
+    child.name = "子";// 给当前对象增加name属性
+    // 还是用call调用Person的run方法(此时child已经有name属性);
+    child.superClass.superClass.run.call(child); // run 父
 ```
