@@ -11,7 +11,7 @@ tags:
   - 面试
   - jsonp
 ---
-## 手写jsonp
+## 手写jsonp(callbackName)
 ```js
 function jsonp (url) {
   /*声明一个唯一的回调函数并挂载到全局上

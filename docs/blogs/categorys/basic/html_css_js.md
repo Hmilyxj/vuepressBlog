@@ -34,6 +34,365 @@ tags:
 ![](/basic14.png)
 ![](/basic15.png)
 ![](/basic16.png)
+## todolist
+```html
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .myhead {
+      background-color: lightpink;
+      text-align: center;
+      padding: 5px 0px 10px 0px;
+      color: aliceblue;
+    }
+
+    table {
+      margin: 0 auto;
+    }
+
+    #things {
+      width: 180px;
+      height: 30px;
+      border-radius: 3px;
+      outline: none;
+      border: solid 1px white;
+    }
+
+    #add {
+      display: inline-block;
+      width: 80px;
+      height: 30px;
+      background-color: gainsboro;
+      color: grey;
+      border-radius: 3px;
+      line-height: 30px;
+    }
+
+    #add:hover {
+      cursor: pointer;
+      background-color: darkgrey;
+      color: grey;
+    }
+
+    ul {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    ul li {
+      list-style: none;
+      /*text-align: center;*/
+      position: relative;
+      padding-left: 40px;
+      height: 40px;
+      line-height: 40px;
+    }
+
+    ul li:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+
+    ul li:hover {
+      cursor: pointer;
+      background-color: #dddddd;
+    }
+
+    ul li.check {
+      background-color: #888888;
+      text-decoration: line-through;
+      color: #f9f9f9;
+    }
+
+    ul li.check::before {
+
+      content: '';
+      position: absolute;
+      border-color: #fff;
+      border-style: solid;
+      border-width: 0 2px 2px 0;
+      top: 10px;
+      left: 16px;
+
+      transform: rotate(45deg);
+      height: 15px;
+      width: 7px;
+    }
+
+    .close {
+      position: absolute;
+      right: 0px;
+      top: 0px;
+      padding: 0px 20px;
+      font-size: 16px;
+    }
+
+    .close:hover {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="myhead">
+    <h2>My ToDo List</h2>
+    <table>
+      <tr>
+        <td><input type="text" placeholder="请输入待办事项..." id="things"></td>
+        <td> <span id="add" onclick="addElement()">add</span></td>
+      </tr>
+    </table>
+  </div>
+  <ul></ul>
+
+  <div class="test2"></div>
+  <script>
+    //1.在每个span后面添加close节点
+    var myNodelist = document.getElementsByTagName("li")
+    for (var i = 0; i < myNodelist.length; i++) {
+      var span = document.createElement("span");
+      var txt = document.createTextNode("\u00D7");
+      span.className = "close";
+      span.appendChild(txt);
+      myNodelist[i].appendChild(span);
+    }
+
+    //2.处理删除事件
+    var close = document.getElementsByClassName("close")
+    for (var i = 0; i < close.length; i++) {
+      close[i].onclick = function () {
+        //parentElement表示返回当前节点的父元素节点
+        var div = this.parentElement
+        div.style.display = "none"
+      }
+    }
+
+    //3.处理任务完成事件
+    var list = document.querySelector("ul")
+    console.log(list)
+    list.addEventListener('click', function (ev) {
+      //event.target属性可以用来实现事件委托，例如将事件绑定在ul上，但是点击li时可以被触发
+      //tagName是获取元素的标签名
+      if (ev.target.tagName === 'LI') {
+        //toggle方法在被选元素上进行hide（）和show（）之间的切换
+        //classList对元素的class继续操作
+        ev.target.classList.toggle('check')
+      }
+    }, false);
+
+    //4.处理点击add按钮，列表中添加一个待办事项
+
+    function addElement() {
+      var things = document.getElementById('things').value
+      // alert(localStorage.setItem("mutodolist",JSON.stringify(things)))
+      var li = document.createElement('li')
+      var t = document.createTextNode(things)
+      if (things == '') {
+        alert("请输入待办事件")
+      }
+      else {
+        list.appendChild(li)
+        li.appendChild(t)
+      }
+      var span = document.createElement('span')
+      var txt = document.createTextNode('\u00D7')
+      span.className = 'close'
+      span.appendChild(txt)
+      li.appendChild(span)
+      for (var i = 0; i < close.length; i++) {
+        close[i].onclick = function () {
+          var div = this.parentElement
+          div.style.display = "none"
+        }
+      }
+    }
+  </script>
+</body>
+```
+## css实现横向滚动条
+```html
+ <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    ul {
+      width: 100%;
+      height: 200px;
+      /* 重点!!!!!!!!!!!!!!!!! */
+      overflow-x: scroll;
+      overflow-y: hidden;
+      list-style-type: none;
+      display: flex;
+    }
+
+    li {
+      width: 200px;
+      height: 100%;
+      flex: none;
+      /* 重点 */
+      border: 1px solid blue;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    li:nth-child(n + 2) {
+      margin-left: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <ul>
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+    <li>5</li>
+    <li>6</li>
+    <li>7</li>
+  </ul>
+</body>
+```
+## 树形组件(递归)
+```vue
+// tree.vue
+<template>
+ <div class="tree-alone">
+ <tree-menu :label="tree.label" :nodes="tree.nodes"></tree-menu>
+ </div>
+</template>
+<script>
+ import TreeMenu from './TreeMenu.vue'
+ export default {
+ name: 'tree',
+ data() {
+  return {
+   tree: {
+   id: "01",
+   lable: "总层级",
+   nodes: [
+    {
+    id: "02",
+    label: "层级1",
+    nodes: [{
+     label: '层级1-1'
+    }]
+    },
+    {
+    id: "03",
+    label: "层级2",
+    nodes: []
+    },
+   ]
+   };
+ }
+  }
+ },
+ components: {
+  TreeMenu
+ }
+ }
+</script>
+```
+```vue
+// treemenu.vue
+<template>
+ <div class="tree-menu">
+ <div :style="indent" @click="toggleChildren">{{label}}</div>
+ <div v-if="showChildren">
+  <tree-menu
+  v-for="(item, index) of nodes"
+  :key="index"
+  :nodes="node.nodes"
+  :label="node.label"
+  :depth="depth + 1"
+  ></tree-menu>
+ </div>
+ </div>
+</template>
+
+<script>
+export default {
+ name: "TreeMenu",
+ props: ["label", "nodes"],
+ data() {
+ return {
+  showChildren: false
+ };
+ },
+ methods: {
+ toggleChildren() {
+  this.showChildren = !this.showChildren;
+ }
+ },
+ computed: {
+ indent() {
+  return { transform: `translate(${this.depth * 20}px)` };
+ }
+ }
+};
+</script>
+```
+## 菱形
+```html
+<style>
+  .diamond {
+    width: 100px;
+    height: 100px;
+    background-color: red;
+    transform: rotate(45deg);
+    margin: 50px auto;
+    /*让菱形浏览器上居中*/
+  }
+</style>
+
+<body>
+  <div class="diamond"></div>
+</body>
+```
+```html
+<style>
+  .one {
+    border: 20px solid transparent;
+    width: 0;
+    border-bottom: 20px solid black;
+  }
+
+  .two {
+    border: 20px solid transparent;
+    width: 0;
+    border-top: 20px solid black;
+  }
+</style>
+
+<body>
+  <div class="one"></div>
+  <div class="two"> </div>
+</body>
+```
 ## 导航栏
 ```html
 <style>
@@ -670,7 +1029,7 @@ function animate(obj, target) {
   }, 15)
 }
 ```
-## 移动动画效果
+## 移动动画效果(盒子移动)
 ```html
 <button id="btn">奔跑吧盒子</button>
 <div id="demo"></div>

@@ -200,7 +200,58 @@ fuction promiseAll(promises){
   })
 }
 ```
+## Promise.all中的错误处理
+```js
+// 我们的需求是：出错的那一个请求不会影响到正常的请求。
+// 要解决上面的问题，思路很简单，只需要再外面再包一层Promise就行了，不管内部的Promise是resolved或者rejected了，外层的Promise都resolve就可以了。这样，Promise.all接收到的，永远都是resolved的Promise。两层的Promise看起来有些别扭，为了代码写起来稍微好看一点，我们用await和try…catch来处理。
+/**
+ * @param {Promise} p 
+ */
+async function promiseWithError(p) {
+  try {
+    const res = await p;
+    return {
+      err: 0,
+      data: res
+    };
+  } catch(e) {
+    return {
+      err: 1
+    }
+  }
+}
 
+const p1 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('promise resolve 1');
+  }, 1000);
+});
+
+const p2 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('promise resolve 2');
+  }, 2000);
+});
+
+const p3 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    reject('promise reject 3');
+  }, 3000);
+});
+
+Promise.all([p1, p2, p3].map(item => promiseWithError(item)))
+  .then(res => {
+    console.log('resolve:', res);
+  })
+  .catch(err => {
+    console.log('reject:', err);
+  });
+
+
+// 最终的输出为：
+// resolve: [{ err: 0, data: "promise resolve 1"}, { err: 0, data:"promise resolve 2"}, { err: 1 }]
+// 我们还可以使用Promise.allSettled。
+```
 ## 手写Promise.allsettled
 相对于 Promise.all 需要所有 promise都成功时才 resolve或者有一个失败时即reject，Promise.allSettled 只关心所有 promise 是不是都被 settle 了，不管其是 rejected状态的 promise，还是非 rejected状态(即fulfilled)的 promise, 我都可以拿到它的最终状态并对其进行处理
 ```js

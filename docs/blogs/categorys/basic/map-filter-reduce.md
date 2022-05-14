@@ -1,5 +1,5 @@
 ---
-title: 前端基础之map、filter、reduce
+title: 前端基础之map、filter、reduce、some、every
 date: 2022-2-22
 subSidebar: "auto"
 isShowbgImage: false
@@ -69,4 +69,46 @@ let test = arr.myMap(item => {
   return item * 2;
 })
 console.log(test)
+```
+
+## 手写some
+```js
+// 实现some
+Array.prototype.some = function(fn, value){
+  if (typeof fn !== "function") {
+      return false;
+  }
+  var arr = this;
+  for (var i = 0; i < arr.length; i++) {
+      var result = fn.call(value, arr[i], i, arr);
+      if (result) return true;
+  }
+  return false;
+}
+
+var arr3 = [2,23,4,2,4,2,2];
+console.log(arr3.some(function(item, index, arr){
+  return item >= 6;
+}));
+```
+
+## 手写every
+```js
+
+Array.prototype.every = function(fn, value){
+  if (typeof fn !== "function") {
+      return false;
+  }
+  var arr = this;
+  for (var i = 0; i < arr.length; i++) {
+      var result = fn.call(value, arr[i], i, arr);
+      if (!result) return false;
+  }
+  return true;
+}
+
+var arr3 = [2,23,4,2,4,2,2];
+console.log(arr3.some(function(item, index, arr){
+  return item >= 0;
+}));
 ```

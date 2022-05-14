@@ -321,7 +321,7 @@ Object.defineProperty(obj, 'name', {
   }
 }
 ```
-## 实现双括号模板字符串{{}}
+## 实现双括号模板字符串{{}}(template)
 ```js
 // 手动实现双括号模板字符串  {{}}； 正则表达式为： /\{\{(.*?)\}\}/g
     function templateStr2(str, obj) {
@@ -358,7 +358,7 @@ Object.defineProperty(obj, 'name', {
     console.log(templateStr2(str, obj));
     console.log(templateStr3(str, obj));
 ```
-## 实现ES6中的模板字符串 ${}
+## 实现ES6中的模板字符串 ${}(template)
 ```js
 // 手动实现模板字符串 ${}，对应正则表达式为： /\$\{(.*?)\}/g
     function templateStr(str) {
