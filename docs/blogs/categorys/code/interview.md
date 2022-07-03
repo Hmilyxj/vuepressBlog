@@ -962,6 +962,7 @@ function test() {
 var demo = test();
 demo();//里面的函数在外面调用
 ```
+## 输出0-9(而不是10个10，修改闭包)
 ```js
 function fn() {
   for (var i = 0; i < 3; i++) {
@@ -973,6 +974,13 @@ function fn() {
   }
 }
 fn()
+```
+```js
+for (var i = 0; i < 10; i++) {
+  setTimeout((n) => {
+    console.log(n)
+  }, 100, i)
+}
 ```
 ## 函数缓存
 ```js
@@ -1357,173 +1365,6 @@ function mySetTimeout(fn, delay) {
     fn();
   }, delay);
 }
-```
-## Promise并行执行（不用Promise.all）
-```js
-/**
- * 此问题目的为了解决类似http请求的并发量过大导致内存可能溢出的问题。
- */
-function concurrentPoll() {
-  this.tasks = []; // 任务队列
-  this.max = 10; // 最大并发数
-  // 函数主体执行完后立即执行，由于setTimeout是macrotask（宏任务），promise是microtask（微任务）
-  // 所以，addTask方法添加的函数会优先执行
-  setTimeout(() => {
-    this.run()
-  }, 0)
-}
-
-concurrentPoll.prototype.addTask = function (task) { // 原型添加任务方法
-  this.tasks.push(task)
-}
-concurrentPoll.prototype.run = function () { // 原型任务运行方法
-  if (this.tasks.length == 0) { // 判断是否还有任务
-    return
-  }
-  const min = Math.min(this.tasks.length, this.max); // 取任务个数与最大并发数最小值
-  for (let i = 0; i < min; i++) {
-    this.max--; // 执行最大并发递减
-    const task = this.tasks.shift(); // 从数组头部取任务
-    task().then((res) => { // 重：此时可理解为，当for循环执行完毕后异步请求执行回调,此时max变为0
-      console.log(res)
-    }).catch((err) => {
-      console.log(err)
-    }).finally(() => { // 重：当所有请求完成并返回结果后，执行finally回调，此回调将按照for循环依次执行，此时max为0.
-      this.max++; // 超过最大并发10以后的任务将按照任务顺序依次执行。此处可理解为递归操作。
-      this.run();
-    })
-  }
-}
-const poll = new concurrentPoll(); // 实例
-for (let i = 0; i < 13; i++) { // 数据模拟
-  poll.addTask(function () {
-    return new Promise(
-      function (resolve, reject) {
-        // 一段耗时的异步操作
-        resolve(i + '成功') // 数据处理完成
-        // reject('失败') // 数据处理出错
-      }
-    )
-  })
-}
-
-```
-## Promise串行执行
-```js
-let arr = [
-  new Promise(res => {
-    setTimeout(() => {
-      res(1)
-    }, 1000)
-
-  }),
-  new Promise(res => {
-    setTimeout(() => {
-      res(2)
-    }, 1000)
-
-  }),
-  new Promise(res => {
-    setTimeout(() => {
-      res(3)
-    }, 1000)
-
-  })]
-
-function iteratorPromise(arr) {
-  for (let i = 0; i < arr.length; i++) {
-    arr[i].then(num => {
-      console.log(num);
-      return arr[i + 1];
-    })
-  }
-}
-
-iteratorPromise(arr);
-```
-```js
-let arr1 = [() => {
-  return new Promise(res => {
-    setTimeout(() => {
-      console.log("run", 1);
-      res()
-    }, 1000)
-  })
-}, () => {
-  return new Promise(res => {
-    setTimeout(() => {
-      console.log("run", 2);
-      res()
-    }, 1000)
-
-  })
-}, () => {
-  return new Promise(res => {
-    setTimeout(() => {
-      console.log("run", 3);
-      res()
-    }, 1000)
-
-  })
-}]
-
-function iteratorPromise1(arr) {
-  let res = Promise.resolve();
-  arr.forEach(element => {
-    res = res.then(() => element());
-  });
-}
-
-iteratorPromise1(arr1);
-
-
-// function iteratorPromise2(arr) {
-//   arr.forEach(async element => await element());
-// }
-// iteratorPromise2(arr1);
-```
-```js
-// 实现 `chainPromise` 函数
-// 请在不使用 `async` / `await` 语法的前提下完成
-// 完成promise的串行执行
-
-function getPromise(time) {
-  return new Promise((resolve, reject) => {
-    setTimeout(Math.random() > 0.5 ? resolve : reject, time, time);
-  });
-}
-
-function chainPromise(arr) {
-  let res = [];
-  return new Promise((resolve, reject) => {
-    arr
-      .reduce((pre, cur) => {
-        return getPromise(pre)
-          .then((result) => {
-            res.push(result);
-            return getPromise(cur);
-          })
-          .catch((err) => {
-            res.push(err);
-            return getPromise(cur);
-          });
-      })
-      .then((result) => {
-        res.push(result);
-      })
-      .catch((err) => {
-        res.push(err);
-      })
-      .finally(() => {
-        resolve(res);
-      });
-  });
-}
-
-let time = [2000, 4000, 3000, 1000];
-let res = chainPromise(time);
-//等待10s后输出结果
-res.then(console.log);
 ```
 ## 树转数组
 ```js

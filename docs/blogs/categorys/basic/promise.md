@@ -413,10 +413,227 @@ function limitedRequest(urls, maxNum) {
 
 limitedRequest([1, 2, 3, 4, 5, 6, 7, 8], 3)
 ```
+## Promise并行执行（不用Promise.all）
+```js
+class Scheduler {
+  constructor() {
+    //整个队列，存放任务的队列
+    this.queue = []
+    //最大可以并行的数量
+    this.maxNum = 2
+    //表示当前并行的数量
+    this.curNum = 0
+  }
+  //向队列中添加任务
+  add(promiseCreator) {
+    this.queue.push(promiseCreator)
+  }
+  //开始执行
+  start() {
+    for(let i = 0; i < this.maxNum; i++) {
+      this.getNext()
+    }
+  }
+  //执行下一个
+  getNext() {
+    if (this.queue && this.queue.length && this.maxNum > this.curNum) {
+      this.curNum++
+      this.queue.shift()().then(() => {
+        this.curNum--
+        this.getNext()
+      })
+    }
+  }
+}
+
+const timeout = time => new Promise(resolve => setTimeout(resolve, time))
+
+const scheduler = new Scheduler()
+
+const addTask = (time, order) => {
+  scheduler.add(() => timeout(time).then(() => console.log(order)))
+}
+
+addTask(1000, 1)
+addTask(500, 2)
+addTask(300, 3)
+addTask(400, 4)
+
+scheduler.start()
+
+```
+
+```js
+/**
+ * 此问题目的为了解决类似http请求的并发量过大导致内存可能溢出的问题。
+ */
+function concurrentPoll() {
+  this.tasks = []; // 任务队列
+  this.max = 10; // 最大并发数
+  // 函数主体执行完后立即执行，由于setTimeout是macrotask（宏任务），promise是microtask（微任务）
+  // 所以，addTask方法添加的函数会优先执行
+  setTimeout(() => {
+    this.run()
+  }, 0)
+}
+
+concurrentPoll.prototype.addTask = function (task) { // 原型添加任务方法
+  this.tasks.push(task)
+}
+concurrentPoll.prototype.run = function () { // 原型任务运行方法
+  if (this.tasks.length == 0) { // 判断是否还有任务
+    return
+  }
+  const min = Math.min(this.tasks.length, this.max); // 取任务个数与最大并发数最小值
+  for (let i = 0; i < min; i++) {
+    this.max--; // 执行最大并发递减
+    const task = this.tasks.shift(); // 从数组头部取任务
+    task().then((res) => { // 重：此时可理解为，当for循环执行完毕后异步请求执行回调,此时max变为0
+      console.log(res)
+    }).catch((err) => {
+      console.log(err)
+    }).finally(() => { // 重：当所有请求完成并返回结果后，执行finally回调，此回调将按照for循环依次执行，此时max为0.
+      this.max++; // 超过最大并发10以后的任务将按照任务顺序依次执行。此处可理解为递归操作。
+      this.run();
+    })
+  }
+}
+
+const poll = new concurrentPoll(); // 实例
+for (let i = 0; i < 13; i++) { // 数据模拟
+  poll.addTask(function () {
+    return new Promise(
+      function (resolve, reject) {
+        // 一段耗时的异步操作
+        resolve(i + '成功') // 数据处理完成
+        // reject('失败') // 数据处理出错
+      }
+    )
+  })
+}
+
+```
+## Promise串行执行
+```js
+let arr = [
+  new Promise(res => {
+    setTimeout(() => {
+      res(1)
+    }, 1000)
+
+  }),
+  new Promise(res => {
+    setTimeout(() => {
+      res(2)
+    }, 1000)
+
+  }),
+  new Promise(res => {
+    setTimeout(() => {
+      res(3)
+    }, 1000)
+
+  })]
+
+function iteratorPromise(arr) {
+  for (let i = 0; i < arr.length; i++) {
+    arr[i].then(num => {
+      console.log(num);
+      return arr[i + 1];
+    })
+  }
+}
+
+iteratorPromise(arr);
+```
+```js
+let arr1 = [() => {
+  return new Promise(res => {
+    setTimeout(() => {
+      console.log("run", 1);
+      res()
+    }, 1000)
+  })
+}, () => {
+  return new Promise(res => {
+    setTimeout(() => {
+      console.log("run", 2);
+      res()
+    }, 1000)
+
+  })
+}, () => {
+  return new Promise(res => {
+    setTimeout(() => {
+      console.log("run", 3);
+      res()
+    }, 1000)
+
+  })
+}]
+
+function iteratorPromise1(arr) {
+  let res = Promise.resolve();
+  arr.forEach(element => {
+    res = res.then(() => element());
+  });
+}
+
+iteratorPromise1(arr1);
+
+
+// function iteratorPromise2(arr) {
+//   arr.forEach(async element => await element());
+// }
+// iteratorPromise2(arr1);
+```
+```js
+// 实现 `chainPromise` 函数
+// 请在不使用 `async` / `await` 语法的前提下完成
+// 完成promise的串行执行
+
+function getPromise(time) {
+  return new Promise((resolve, reject) => {
+    setTimeout(Math.random() > 0.5 ? resolve : reject, time, time);
+  });
+}
+
+function chainPromise(arr) {
+  let res = [];
+  return new Promise((resolve, reject) => {
+    arr
+      .reduce((pre, cur) => {
+        return getPromise(pre)
+          .then((result) => {
+            res.push(result);
+            return getPromise(cur);
+          })
+          .catch((err) => {
+            res.push(err);
+            return getPromise(cur);
+          });
+      })
+      .then((result) => {
+        res.push(result);
+      })
+      .catch((err) => {
+        res.push(err);
+      })
+      .finally(() => {
+        resolve(res);
+      });
+  });
+}
+
+let time = [2000, 4000, 3000, 1000];
+let res = chainPromise(time);
+//等待10s后输出结果
+res.then(console.log);
+```
 ## promise静态方法
 Promise有四个静态方法，分别是resolve()、reject()、all()和race()，本节将着重分析这几个方法的功能和特点。
 
-1）Promise.resolve()
+## 1）Promise.resolve()
 此方法有一个可选的参数，参数的类型会影响它的返回值，具体可分为三种情况（如下所列），其中有两种情况会创建一个新的已处理的Promise实例，还有一种情况会返回这个参数。
 （1）当参数为空或非thenable时，返回一个新的状态为fulfilled的Promise。
 （2）当参数为thenable时，返回一个新的Promise，而它的状态由自身的then()方法控制，具体细节已在之前的thenable一节做过说明。
@@ -447,7 +664,7 @@ Promise.resolve(new Promise(function(resolve) {
   console.log(value);    //"Promise"
 });
 ```
-2）Promise.reject()
+## 2）Promise.reject()
 此方法能接收一个参数，表示拒绝理由，它的返回值是一个新的已拒绝的Promise实例。与Promise.resolve()不同，Promise.reject()中所有类型的参数都会原封不动的传递给后续的已拒绝的回调函数，如下代码所示。
 ```js
 Promise.reject("rejected").catch(function (reason) {
@@ -458,7 +675,7 @@ Promise.reject(p).catch(function (reason) {
   reason === p;                 //true
 });
 ```
-3）Promise.all()
+## 3）Promise.all()
 （1）当可迭代对象中的所有成员都是已完成的Promise时，新的Promise的状态为fulfilled。而各个成员的决议结果会组成一个数组，传递给后续的已完成的回调函数
 （2）当可迭代对象中的成员有一个是已拒绝的Promise时，新的Promise的状态为rejected。并且只会处理到这个已拒绝的成员，接下来的成员都会被忽略，其决议结果会传递给后续的已拒绝的回调函数，
 ```js
@@ -475,7 +692,7 @@ Promise.all([p1, p2]).catch(function (reason) {
   console.log(reason);         //"error"
 });
 ```
-4）Promise.race()
+## 4）Promise.race()
 新的Promise实例的状态也与方法的参数有关，当参数的成员为空时，其状态为pending；当参数不为空时，其状态是最先被处理的成员的状态
 
 ```js

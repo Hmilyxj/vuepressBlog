@@ -62,6 +62,143 @@ window.onload = function () {
 }
 ```
 
+## IntersectionObserver实现懒加载
+```js
+function query(selector) {
+  return Array.from(document.querySelectorAll(selector));
+}
+
+var observer = new IntersectionObserver(
+  function(changes) {
+    changes.forEach(function(change) {
+      var container = change.target;
+      var content = container.querySelector('template').content;
+      container.appendChild(content);
+      observer.unobserve(container);
+    });
+  }
+);
+
+query('.lazy-loaded').forEach(function (item) {
+  observer.observe(item);
+});
+```
+```html
+ <ul></ul>
+  <script>
+    // 获取dom
+    const ulDom = document.querySelector('ul');
+    const MAX_LENGTH = 10;
+    // 渲染
+    function render() {
+      let html = '';
+      for (let i = 0; i < MAX_LENGTH; i++) {
+        html += `
+            <li>
+                <img class="loading" src="../images/loading.png" alt="">
+                <img class="img" src="" alt="" data-src='../images/image${(i % 5) + 1}.jpg'>
+            </li>`;
+      }
+      ulDom.insertAdjacentHTML('beforeend', html);
+    }
+    render();
+
+    const imgDomList = document.querySelectorAll('.img');
+
+    // 交叉观察器
+    const intersectionObserver = new IntersectionObserver((entires) => {
+      entires.forEach((entry, index) => {
+        if (entry.isIntersecting) {
+          // 模拟异步加载
+          setTimeout(() => {
+            entry.target.src = entry.target.dataset.src;
+            entry.target.previousElementSibling.remove();
+            intersectionObserver.unobserve(entry.target);
+          }, 600);
+        }
+      })
+    }, { threshold: 0.25 });
+
+    [...imgDomList].forEach((item) => {
+      intersectionObserver.observe(item);
+    });
+  </script>
+```
+
+## 无限滚动
+```js
+var intersectionObserver = new IntersectionObserver(
+  function (entries) {
+    // 如果不可见，就返回
+    if (entries[0].intersectionRatio <= 0) return;
+    loadItems(10);
+    console.log('Loaded new items');
+  });
+
+// 开始观察
+intersectionObserver.observe(
+  document.querySelector('.scrollerFooter')
+);
+```
+## 无限加载案例二
+```html
+<ul id="list"></ul>
+  <div class="loadmore" id="loadmore">点击加载更多</div>
+  <script>
+    const ulDom = document.getElementById('list');
+    const loadmoreDom = document.getElementById('loadmore');
+    const MAX_LENGTH = 48;
+    const LIMIT = 12;
+    let loading = false;
+    let id = 1;
+    // 渲染dom
+    function render() {
+      let html = '';
+      for (let i = 0; i < LIMIT; i++) {
+        html += `
+              <li>
+                  <img src="../images/image1.jpg" alt="">
+                  <div>
+                      <p>item${id++}</p>
+                      <p>这里是haorooms博客测试。</p>
+                  </div>
+              </li>`;
+      }
+      ulDom.insertAdjacentHTML('beforeend', html);
+      if (id < MAX_LENGTH) {
+        loadmoreDom.innerHTML = '点击加载更多';
+      } else {
+        loadmoreDom.innerHTML = '我也是有底线的';
+      }
+      loading = false;
+    }
+    render();
+
+    // 加载更多
+    function loadmore() {
+      if (id >= MAX_LENGTH || loading) return;
+      loading = true;
+      loadmoreDom.innerHTML = '<img class="loading" src="../images/loading.png" alt="">加载中...';
+      // 模拟异步加载
+      setTimeout(() => {
+        render();
+      }, 1000);
+    }
+
+    // 交叉观察器
+    const intersectionObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && !loading && id <script MAX_LENGTH) {
+        loadmore();
+      }
+    }, { threshold: 0.8 });
+    intersectionObserver.observe(loadmoreDom);
+
+    // 点击加载更多
+    loadmoreDom.addEventListener('click', (e) => {
+      loadmore();
+    });
+    </script>
+```
 ## 图片预加载
 ```js
 // 懒加载的主要目的是优化前端性能，减少请求数或延迟请求数。

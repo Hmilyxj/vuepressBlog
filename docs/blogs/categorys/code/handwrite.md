@@ -363,8 +363,8 @@ Object.defineProperty(obj, 'name', {
 // 手动实现模板字符串 ${}，对应正则表达式为： /\$\{(.*?)\}/g
     function templateStr(str) {
       /*
-        m：匹配的字符串；p1：匹配正则中第一个元组的字符串；index: 匹配的字符串在整个字符串中的开始下标，str: 当前完整的字符串；
-        replace函数使用法参考：https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/String/replace
+        m：匹配的字符串；p1：匹配正则中第一个元组的字符串；
+        index: 匹配的字符串在整个字符串中的开始下标，str: 当前完整的字符串；
       */
       return str.replace(/\$\{(.*?)\}/g, function (m, p1, index, str) {
         return eval(p1)
@@ -373,6 +373,17 @@ Object.defineProperty(obj, 'name', {
     let name = '张三', age = 25
     let temp = '姓名：${name}，年龄：${age}'
     console.log(templateStr(temp));
+```
+## 实现模板字符串的功能（template("string ${abc} string",{abc:123})=>"string 123 string"）
+```js
+const template = (str, obj) => {
+  for (const key of Reflect.ownKeys(obj)) {
+    const regStr = `\\$\\{${key}\\}`;
+    const reg = new RegExp(regStr, "g");
+    str = str.replace(reg, obj[key]);
+  }
+  return str;
+};
 ```
 ## readfile和writefile
 ```js

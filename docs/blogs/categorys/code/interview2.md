@@ -10,6 +10,305 @@ tags:
   - 前端
   - 面经
 ---
+## 寄生组合继承
+```js
+//示例1
+function Parent(){
+    this.name = name;
+    this.say = () => {
+        console.log(111);
+    };
+}
+
+Parent.prototype.play = () => {
+    console.log(222)
+};
+
+function Children(name) {
+    Parent.call(this);
+    this.name = name;
+}
+
+Children.prototype = Object.create(Parent.prototype);
+Children.prototype.constructor = Children;
+
+let child = new Children("111");
+console.log(child); // Children {name: "111", say: ƒ}
+console.log(child.name); // 111
+child.say(); // 111
+child.play(); // 222
+```
+```js
+//示例2
+function Person(obj) {
+    this.name = obj.name;
+    this.age = obj.age;
+}
+
+Person.prototype.log = function (value) {
+    console.log(`${this.name} is ${this.age} is ${value}`)
+}
+var p1 = new Person({
+    name: 'aaa',
+    age: 25
+})
+p1.log('hello') // aaa is 25 is hello
+
+
+function P2(obj) {
+    Person.call(this, obj)
+}
+P2.prototype = Object.create(Person.prototype) // !!!!
+P2.prototype.constructor = Person // !!!!
+
+var p2 = new P2({
+    name: 'sss',
+    age: 27
+})
+p2.log('world') // sss is 27 is world
+
+```
+## 反转每对括号间的子串
+```js
+/**
+ * @param {string} s
+ * @return {string}
+ */
+var reverseParentheses = function (s) {
+  let ans = s;
+
+  let reverse = (s) => {
+    return s.split("").reverse().join(""); //反转字符串
+  }
+
+  let match = [];//用一个数组作为括号的栈
+
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] == '(') {
+      match.push(i + 1);//入栈 存储一个左括号的位置
+    } else if (s[i] == ')') {
+      let m = match.pop();//出栈 取出一个左括号的位置
+      ans = ans.substring(0, m) + reverse(ans.substring(m, i)) + ans.substring(i, ans.length);//反转指定的部分
+    }
+  }
+
+  return ans.replaceAll('(', '').replaceAll(')', '');//最后去除字符串里的括号
+};
+```
+## 任意时刻时针与分针的夹角
+```js
+function calcul(h,m){
+	if(h<24&&m<60){
+		//时针每走一小时30度，一分钟走0.5度
+		//时针走的度数
+		let num1=h%12*30+m*0.5;
+		//分针每走一分钟是6度
+		//分针走的度数
+		let num2=m*6;
+		//夹角
+		return Math.abs(num1-num2);
+	}	
+}
+console.log(calcul(5,50));
+```
+
+## 把时间转换成角度(时钟实现}-时分秒
+```js
+var date = new Date();//获取当前时间
+var h = date.getHours(); //获取时
+var m = date.getMinutes();//获取分
+var s = date.getSeconds();//获取秒
+
+var   hDeg=(h*3600+m*60+s)/(3600*12)*360;//时针角度
+var   mDeg=(m*60+s)/3600*360;//分针角度
+var   sDeg=360/60*s;//秒针角度
+```
+
+## Promise.resolve(v)和new Promise(resolve => resolve(v))
+```js
+Promise.resolve(p)
+等价于
+new Promise(
+  resolve => { 
+    Promise.resolve().then(()=>{ 
+      p.then(resolve); 
+    }); 
+  });
+```
+## 取数组最大值
+```js
+// ES5写法
+Math.max.apply(null,[14,3,77,30]);
+```
+```js
+// ES6写法 
+Math.max(...[14,3,77,30]);
+```
+```js
+// reduce
+[14,3,77,30].reduce((accumulator, currentValue)=>{
+return accumulator = accumulator > currentValue ? accumulator : currentValue
+});
+```
+## 科学计数法变为普通数字
+```js
+// 科学计数法是科学家用来表示很大或很小的数字的一种方便的方法，其满足正则表达式
+// [+-][1-9]"."[0-9]+E[+-][0-9]+，即数字的整数部分只有1位，小数部分至少有1位，该数字及其指数部分的
+// 正负号即使对正数也必定明确给出。现以科学计数法的格式给出实数A，请编写程序按普通数字表示法输出A，
+// 并保证所有有效位都被保留。
+function printNum(numStr) {
+  let res = '';
+  if (numStr[0] == '-') {
+    res += '-';
+  }
+  let left = numStr[1];
+  let right = Array.from(numStr.substring(numStr.indexOf(".") + 1, numStr.indexOf("E")));
+  let zhiShuFuHao = numStr.charAt(numStr.indexOf("E") + 1);
+  let zhishu = parseInt(numStr.substring(numStr.indexOf("E") + 2));
+  if (zhiShuFuHao == '+') {
+    res += left;
+    let forNum = Math.max(right.length, zhishu);
+    for (let i = 0; i < forNum; i++) {
+      if (i <= (right.length - 1)) {
+        res += right[i];
+      } else {
+        res += '0';
+      }
+      if (i == (zhishu - 1) && i != (forNum - 1)) {
+        res += '.';
+      }
+    }
+  } else if (zhiShuFuHao == '-') {
+    res += "0.";
+    for (let i = 0; i < zhishu - 1; i++) {
+      res += '0';
+    }
+    res += left;
+    for (let i = 0; i < right.length; i++) {
+      res += right[i];
+    }
+  }
+  return res;
+}
+
+console.log(printNum('+1.23400E-03'));//0.00123400
+console.log(printNum('+1.234E+10'));//12340000000
+console.log(printNum('-1.234E+03'));//-1234
+```
+## 对象数组去重
+```js
+输入:
+[{a:1,b:2,c:3},{b:2,c:3,a:1},{d:2,c:2}]
+
+输出:
+[{a:1,b:2,c:3},{d:2,c:2}]
+
+function objSort(obj){
+    let newObj = {}
+    //遍历对象，并将key进行排序
+    Object.keys(obj).sort().map(key => {
+        newObj[key] = obj[key]
+    })
+    //将排序好的数组转成字符串
+    return JSON.stringify(newObj)
+}
+
+function unique(arr){
+    let set = new Set();
+    for(let i=0;i<arr.length;i++){
+        let str = objSort(arr[i])
+        set.add(str)
+    }
+    //将数组中的字符串转回对象
+    arr = [...set].map(item => {
+        return JSON.parse(item)
+    })
+    return arr
+}
+```
+```js
+let arr = [{
+  "goodsId": "1",
+  "quota": 12,
+  "skuId": "1"
+},
+{
+  "goodsId": "2",
+  "quota": 12,
+  "skuId": "2"
+},
+{
+  "goodsId": "1",
+  "quota": 12,
+  "skuId": "1"
+}]
+
+//法一
+function uniqueFunc(arr, uniId) {
+  const res = new Map();
+  return arr.filter((item) => !res.has(item[uniId]) && res.set(item[uniId], 1));
+}
+//法二
+function uniqueFunc2(arr, uniId){
+  let hash = {}
+  return arr.reduce((accum,item) => {
+    hash[item[uniId]] ? '' : hash[item[uniId]] = true && accum.push(item)
+    return accum
+  },[])
+}
+//法三
+function uniqueFunc3(arr, uniId){
+  let obj = {}
+  let tempArr = []
+  for(var i = 0; i<arr.length; i++){
+    if(!obj[arr[i][uniId]]){
+      tempArr.push(arr[i])
+      obj[arr[i][uniId]] = true
+    }
+  }
+  return tempArr
+}
+
+```
+## 删掉字符串相同长度大于等于2的子串
+```js
+//'abbbaca'=>'aaca'
+let test = 'abbbaca';
+let len = test.length;
+let stack = [test[0]];
+for (let i = 0; i < len; i++) {
+  if (stack.length) {
+    if (test[i] === stack[stack.length - 1]) {
+      while (stack[i] === test[i + 1]) {
+        i++;
+      }
+      stack.pop();
+    } else {
+      stack.push(stack[i]);
+    }
+  } else {
+    stack.push(stack[i]);
+  }
+}
+
+console.log(stack.join(''))
+```
+## 如何知道action什么时候结束
+```js
+//让action返回Promise，在promise的then中来处理完成后的操作
+action: {
+  getResult(context){
+    return new Promise((resolve, reject) => {
+      axios.get('url').then(res => {
+        context.commit('...', res.data)
+        resolve()
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  }
+}
+```
 ## fetch缓存类似函数缓存
 ## fetch拦截器
 ```js
